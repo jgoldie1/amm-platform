@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="TryAMM browser vocal studio foundation with synchronized multitrack playback." />
+  <title>TryAMM Vocal Studio</title>
+  <link rel="stylesheet" href="/vocal-studio.css" />
+  <script type="module" src="/vocal-studio-app.js"></script>
+</head>
+<body style="margin:0;background:#080712;color:#f7f3ff;font-family:Inter,system-ui,sans-serif">
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid #43366d;background:#0b0818">
+    <a style="color:white;text-decoration:none;font-weight:900" href="/"><span style="color:#4fe3ff">TRY</span>AMM</a>
+    <nav aria-label="Studio navigation"><a style="color:white;margin-right:16px" href="/">Home</a><a style="color:white" href="#tracks">Tracks</a></nav>
+  </header>
+  <main class="studio-shell">
+    <section class="studio-hero" aria-labelledby="studioTitle">
+      <p class="eyebrow">ANIYAH 64-TRACK VOCAL STUDIO FOUNDATION</p>
+      <h1 id="studioTitle">Load, synchronize and mix your audio tracks.</h1>
+      <p>This recovered browser studio supports synchronized playback, pause/resume, mute, solo, looping, volume, panning and safe track cleanup. Recording, waveform editing, plug-ins, pitch correction, cloud saving and final export remain the next milestones.</p>
+    </section>
+    <section class="studio-toolbar" aria-label="Transport controls">
+      <label class="file-button">Add audio tracks<input id="audioFiles" type="file" accept="audio/*" multiple /></label>
+      <button id="playAll">▶ Play</button><button id="pauseAll">Ⅱ Pause</button><button id="stopAll">■ Stop</button>
+      <label>Master volume<input id="masterVolume" type="range" min="0" max="1" step="0.01" value="1" /></label>
+      <button id="clearAll">Clear tracks</button>
+    </section>
+    <p id="studioStatus" class="studio-status" role="status" aria-live="polite">Select one or more audio files to begin.</p>
+    <section id="tracks" class="track-list" aria-labelledby="trackHeading">
+      <div class="section-head"><h2 id="trackHeading">Tracks</h2><span id="trackCount">0 / 64</span></div>
+      <div id="trackRows"><p class="empty">No tracks loaded.</p></div>
+    </section>
+    <section id="limitations" class="section safety"><h2>Current milestone</h2><p>Functional multitrack playback and mixing foundation recovered from the historical source branch.</p></section>
+  </main>
+  <template id="trackTemplate"><article class="track-row"><div class="track-copy"><strong class="track-name"></strong><span class="track-duration"></span></div><label>Volume<input class="track-volume" type="range" min="0" max="1" step="0.01" value="1" /></label><label>Pan<input class="track-pan" type="range" min="-1" max="1" step="0.01" value="0" /></label><div class="track-actions"><button class="track-mute" type="button">Mute</button><button class="track-solo" type="button">Solo</button><button class="track-loop" type="button">Loop</button><button class="track-remove" type="button">Remove</button></div></article></template>
+</body>
+</html>
