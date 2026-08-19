@@ -18,6 +18,8 @@ type SecurityState = {
   updated_at: string;
 };
 
+type UserSecurityState = { user_id:string; status:'normal'|'step_up_required'|'locked'; reason?:string|null; risk_score:number; locked_at?:string|null };
+
 const envPanic = () => process.env.TRYAMM_PANIC_MODE === 'true';
 
 export async function getSecurityState(): Promise<SecurityState> {
@@ -29,9 +31,7 @@ export async function getSecurityState(): Promise<SecurityState> {
   try {
     const rows = await selectRows<SecurityState>('security_control_state','select=*&id=eq.global&limit=1');
     if (rows[0]) return rows[0];
-  } catch {
-    // Sensitive operations fail closed below when persistence is unavailable.
-  }
+  } catch {}
   return {
     id:'global', mode:'elevated', freeze_payments:true, freeze_payouts:true, freeze_gifts:true,
     freeze_device_control:true, freeze_publishing:true, freeze_uploads:true, freeze_live:false,
@@ -43,14 +43,9 @@ export async function getSecurityState(): Promise<SecurityState> {
 export async function requireCapability(capability: SecurityCapability) {
   const state = await getSecurityState();
   const frozen: Record<SecurityCapability, boolean> = {
-    payments: state.freeze_payments,
-    payouts: state.freeze_payouts,
-    gifts: state.freeze_gifts,
-    device_control: state.freeze_device_control,
-    publishing: state.freeze_publishing,
-    uploads: state.freeze_uploads,
-    live: state.freeze_live,
-    admin: state.mode === 'panic',
+    payments: state.freeze_payments, payouts: state.freeze_payouts, gifts: state.freeze_gifts,
+    device_control: state.freeze_device_control, publishing: state.freeze_publishing, uploads: state.freeze_uploads,
+    live: state.freeze_live, admin: state.mode === 'panic',
   };
   if (frozen[capability]) {
     await recordSecurityEvent('capability.blocked','high',{ capability, mode: state.mode, incidentId: state.incident_id }).catch(()=>{});
@@ -59,13 +54,26 @@ export async function requireCapability(capability: SecurityCapability) {
   return state;
 }
 
+export async function getUserSecurityState(userId: string): Promise<UserSecurityState> {
+  const rows = await selectRows<UserSecurityState>('user_security_state',`select=user_id,status,reason,risk_score,locked_at&user_id=eq.${encodeURIComponent(userId)}&limit=1`).catch(()=>[]);
+  return rows[0] ?? { user_id:userId, status:'normal', risk_score:0 };
+}
+
+export async function requireUserSecurity(userId: string, options?: { stepUpAction?: string }) {
+  const state = await getUserSecurityState(userId);
+  if (state.status === 'locked') {
+    await recordSecurityEvent('account.lockdown_blocked','high',{reason:state.reason,riskScore:state.risk_score},userId).catch(()=>{});
+    throw new Error('ACCOUNT_LOCKED');
+  }
+  if (state.status === 'step_up_required') {
+    if (!options?.stepUpAction) throw new Error('STEP_UP_REQUIRED');
+    await requireRecentStepUp(userId, options.stepUpAction, 300);
+  }
+  return state;
+}
+
 export async function recordSecurityEvent(eventType: string, severity: 'info'|'low'|'medium'|'high'|'critical', payload: Record<string, unknown> = {}, actorId?: string) {
-  return insertRow<Record<string, unknown>>('security_events_append_only', {
-    actor_id: actorId ?? null,
-    event_type: eventType,
-    severity,
-    payload,
-  });
+  return insertRow<Record<string, unknown>>('security_events_append_only', { actor_id: actorId ?? null, event_type: eventType, severity, payload });
 }
 
 export function isSecurityAdmin(userId: string) {
@@ -76,7 +84,7 @@ export function isSecurityAdmin(userId: string) {
 export async function requireRecentStepUp(userId: string, action: string, maxAgeSeconds = 300) {
   const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
   const rows = await selectRows<{id:string}>('security_step_up_events',
-    `select=id&user_id=eq.${encodeURIComponent(userId)}&action=eq.${encodeURIComponent(action)}&verified_at=gte.${encodeURIComponent(since)}&order=verified_at.desc&limit=1`);
+    `select=id&user_id=eq.${encodeURIComponent(userId)}&action=eq.${encodeURIComponent(action)}&verified_at=gte.${encodeURIComponent(since)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&order=verified_at.desc&limit=1`);
   if (!rows[0]) throw new Error('PASSKEY_STEP_UP_REQUIRED');
   return true;
 }
