@@ -50,6 +50,8 @@ Every Founder Archive record and chunk must carry an owner_id and be protected b
 
 Founder Archive ingestion must preserve provenance where available, including source type, source reference, original creation date, checksum/content hash, capture time, tags, related Legacy Design Vault IDs, and searchable chunks. Source material must not be rewritten and presented as original evidence; summaries and derived memories remain distinguishable from source records.
 
+HoloGPT founder context assembly must combine three separately governed sources: Googolplex working memory, Founder Archive history, and Legacy Design Recovery Vault provenance. Every returned context item must keep its source label and confidence/provenance status so HoloGPT can distinguish working memory, reconstructed history, verified source material, and partial/reference-only legacy records. The combined bundle is retrieval-only by default.
+
 Exports, deletions, sharing, ownership changes, or permission changes require an explicit authenticated owner action and must be auditable. Service-role ingestion may be used only by trusted server-side jobs and may not create a public access path.
 
 The application must never claim the complete historical ChatGPT archive has been ingested unless an actual export/source set has been processed and reconciled. Missing conversations remain missing until a source is supplied or recovered.
@@ -74,7 +76,7 @@ A mobility mission is not production-ready merely because planning succeeds. Rea
 
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, founder-archive retrieval process, or legacy-recovery process may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, founder-archive retrieval process, founder-context assembler, or legacy-recovery process may bypass:
 
 - authentication or authorization
 - Supabase RLS
