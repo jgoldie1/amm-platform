@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabase/browser';
 
-const modes = ['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','general'] as const;
+const modes = ['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','karaoke','mic','vocal-box','general'] as const;
 
 export default function StartLiveButton() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function StartLiveButton() {
   async function start() {
     setStarting(true);
     try {
-      const { data: { session } } = await getBrowserSupabase().auth.getSession();
+      const { data: { session } } } = await getBrowserSupabase().auth.getSession();
       if (!session?.access_token) throw new Error('Sign in before going LIVE.');
       const response = await fetch('/api/live/rooms', {
         method: 'POST',
