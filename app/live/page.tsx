@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import StartLiveButton from '@/components/live/StartLiveButton';
 
 type Creator = {
   user_id: string;
@@ -13,11 +14,12 @@ type Creator = {
   is_live: boolean;
   accepts_pk: boolean;
   mode: string;
+  room_name?: string | null;
   headline?: string | null;
   viewer_count: number;
 };
 
-const modes = ['all','live','pk','shopping','game','music','starverse','movie','tv'];
+const modes = ['all','live','pk','shopping','game','music','starverse','showcase','talent','karaoke','mic','vocal-box','news','debate','faith','movie','tv'];
 
 export default function LivePage() {
   const [creators, setCreators] = useState<Creator[]>([]);
@@ -28,15 +30,18 @@ export default function LivePage() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (mode !== 'all') params.set('mode', mode);
+    if (mode !== 'all' && mode !== 'live' && mode !== 'pk') params.set('mode', mode);
     if (country) params.set('country', country);
     if (language) params.set('language', language);
     fetch(`/api/live/discovery?${params.toString()}`, { cache: 'no-store' })
       .then(async r => {
         if (!r.ok) throw new Error('LIVE presence unavailable');
         const data = await r.json();
-        setCreators(data.creators ?? []);
-        setStatus(data.creators?.length ? `${data.creators.length} creators online` : 'No creators match this filter yet.');
+        let next: Creator[] = data.creators ?? [];
+        if (mode === 'live') next = next.filter(c => c.is_live);
+        if (mode === 'pk') next = next.filter(c => c.accepts_pk);
+        setCreators(next);
+        setStatus(next.length ? `${next.length} creators online` : 'No creators match this filter yet.');
       })
       .catch(() => setStatus('LIVE discovery is temporarily unavailable.'));
   }, [mode, country, language]);
@@ -49,13 +54,15 @@ export default function LivePage() {
         <div>
           <p className="eyebrow">GLOBAL LIVE NEXUS</p>
           <h1>See the world LIVE.</h1>
-          <p className="lede">Discover creators by country, language and experience: LIVE, PK battles, shopping, games, music, StarVerse auditions, movies and Isaiah AI TV.</p>
+          <p className="lede">Discover creators by country, language and experience: LIVE, PK, Showcase, Talent, Karaoke, Mic, Vocal Box, shopping, games, music, news, debate, faith, StarVerse, movies and Isaiah AI TV.</p>
         </div>
         <div className="live-orb" aria-label={`${liveCount} live creators`}>
           <strong>{liveCount}</strong>
           <span>LIVE NOW</span>
         </div>
       </section>
+
+      <StartLiveButton />
 
       <section className="holo-panel live-controls" aria-label="LIVE discovery controls">
         <div className="mode-strip">
@@ -86,8 +93,10 @@ export default function LivePage() {
               <span className="status-chip">{creator.viewer_count} watching</span>
             </div>
             <div className="action-row">
-              <button disabled={!creator.is_live}>Watch LIVE</button>
-              {creator.accepts_pk && <button>Challenge PK</button>}
+              {creator.is_live && creator.room_name ? (
+                <Link href={`/live/room/${encodeURIComponent(creator.room_name)}?mode=${encodeURIComponent(creator.mode)}`}>Watch LIVE</Link>
+              ) : <button disabled>Watch LIVE</button>}
+              {creator.accepts_pk && creator.room_name ? <Link href={`/live/room/${encodeURIComponent(creator.room_name)}?mode=${encodeURIComponent(creator.mode)}`}>Challenge PK</Link> : null}
               <Link href="/creator-universe">Creator Universe</Link>
             </div>
           </article>
@@ -96,7 +105,7 @@ export default function LivePage() {
 
       <section className="holo-panel">
         <h2>Start creating</h2>
-        <p>Go LIVE, turn highlights into reels, audition in StarVerse, create music in Aniyah 64-Track Studio, package shows for Isaiah AI TV, build movies in Omni Box, sell through Live Shopping and bring fans into Games/Living Worlds.</p>
+        <p>Go LIVE, sing through Mic/Karaoke/Vocal Box, compete in Showcase/Talent, turn highlights into reels, audition in StarVerse, create music in Aniyah 64-Track Studio, package shows for Isaiah AI TV, build movies in Omni Box, sell through Live Shopping and bring fans into Games/Living Worlds.</p>
         <div className="action-row">
           <Link href="/creator-universe">Open Creator Universe</Link>
           <Link href="/live-shopping">Open Live Shopping</Link>
