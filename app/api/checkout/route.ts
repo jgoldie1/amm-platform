@@ -2,15 +2,15 @@ import { NextResponse } from 'next/server';
 import { bearerToken, userRest, verifySupabaseUser } from '@/lib/supabase/user-rest';
 import { patchRows } from '@/lib/supabase/server-rest';
 import { createCheckout } from '@/lib/integrations/payments';
-import { requireCapability } from '@/lib/security/control-plane';
+import { requireCapability, requireUserSecurity } from '@/lib/security/control-plane';
 
 export async function POST(request: Request) {
   const token=bearerToken(request);
   if(!token) return NextResponse.json({error:'unauthorized'},{status:401});
   const user=await verifySupabaseUser(token);
   if(!user) return NextResponse.json({error:'invalid_session'},{status:401});
-  try { await requireCapability('payments'); }
-  catch { return NextResponse.json({error:'security_freeze',message:'Checkout is temporarily frozen by Quantum Security.'},{status:423}); }
+  try { await requireCapability('payments'); await requireUserSecurity(user.id,{stepUpAction:'payment'}); }
+  catch(error) { const code=error instanceof Error?error.message:'security_freeze'; return NextResponse.json({error:code,message:'Checkout is blocked until the security requirement is cleared.'},{status:423}); }
   const body=await request.json();
   if(!body.productId) return NextResponse.json({error:'missing_product'},{status:400});
   const products=await userRest(token,`products?select=id,creator_id,name,price,currency,inventory,status&id=eq.${encodeURIComponent(body.productId)}&status=eq.active&limit=1`);
