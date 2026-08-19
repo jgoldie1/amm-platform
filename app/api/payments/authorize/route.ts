@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { evaluateCompliance } from "@/lib/compliance/engine";
-import type { ComplianceRequest } from "@/lib/compliance/types";
-import { insertRow, isSupabaseConfigured } from "@/lib/supabase/server-rest";
+import type { ComplianceRequest, ProviderCredential } from "@/lib/compliance/types";
+import {
+  insertRow,
+  isSupabaseConfigured,
+  selectRows,
+} from "@/lib/supabase/server-rest";
 
-interface PaymentAuthorizationRequest extends ComplianceRequest {
+interface PaymentAuthorizationRequest
+  extends Omit<ComplianceRequest, "credential"> {
   customerId?: string;
   providerServiceAmountCents?: number;
   tryammPlatformFeeCents?: number;
@@ -15,16 +20,90 @@ interface PaymentAuthorizationRequest extends ComplianceRequest {
   currency?: string;
 }
 
+interface CredentialRow {
+  provider_id: string;
+  vertical: ProviderCredential["vertical"];
+  jurisdiction: string;
+  credential_type: string;
+  license_number?: string | null;
+  issuing_authority?: string | null;
+  verification_status: ProviderCredential["status"];
+  expires_at?: string | null;
+  verified_at?: string | null;
+}
+
 function validMoney(value: number | undefined) {
   return value === undefined || (Number.isInteger(value) && value >= 0);
+}
+
+function toCredential(row: CredentialRow): ProviderCredential {
+  return {
+    providerId: row.provider_id,
+    vertical: row.vertical,
+    jurisdiction: row.jurisdiction,
+    credentialType: row.credential_type,
+    licenseNumber: row.license_number ?? undefined,
+    issuingAuthority: row.issuing_authority ?? undefined,
+    status: row.verification_status,
+    expiresAt: row.expires_at ?? undefined,
+    verifiedAt: row.verified_at ?? undefined,
+  };
 }
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as PaymentAuthorizationRequest;
-    const decision = evaluateCompliance(body);
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          paymentAuthorized: false,
+          persisted: false,
+          error: "AUDIT_PERSISTENCE_REQUIRED",
+          message: "The regulated transaction cannot be authorized until server-side Supabase persistence is configured.",
+        },
+        { status: 503 },
+      );
+    }
+
+    const encodedProvider = encodeURIComponent(body.providerId ?? "");
+    const encodedVertical = encodeURIComponent(body.vertical ?? "");
+    const encodedJurisdiction = encodeURIComponent(body.jurisdiction ?? "");
+
+    const credentialRows = await selectRows<CredentialRow>(
+      "provider_credentials",
+      `provider_id=eq.${encodedProvider}&vertical=eq.${encodedVertical}&jurisdiction=eq.${encodedJurisdiction}&select=*&order=verified_at.desc.nullslast,created_at.desc&limit=1`,
+    );
+
+    const complianceRequest: ComplianceRequest = {
+      vertical: body.vertical,
+      jurisdiction: body.jurisdiction,
+      providerId: body.providerId,
+      credential: credentialRows[0] ? toCredential(credentialRows[0]) : null,
+      requestedFeeType: body.requestedFeeType,
+      requestedAmountCents: body.requestedAmountCents,
+    };
+
+    const decision = evaluateCompliance(complianceRequest);
 
     if (!decision.allowed || decision.status !== "approved") {
+      await insertRow("compliance_checks", {
+        provider_id: body.providerId || null,
+        vertical: body.vertical,
+        jurisdiction: body.jurisdiction,
+        fee_type: body.requestedFeeType,
+        amount_cents: Math.max(0, Number(body.requestedAmountCents) || 0),
+        decision: decision.status,
+        decision_code: decision.code,
+        reasons: decision.reasons,
+        required_actions: decision.requiredActions,
+        request_snapshot: {
+          ...body,
+          credentialSource: "provider_credentials",
+        },
+      });
+
       return NextResponse.json(
         {
           ok: false,
@@ -57,20 +136,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json(
-        {
-          ok: false,
-          paymentAuthorized: false,
-          persisted: false,
-          decision,
-          error: "AUDIT_PERSISTENCE_REQUIRED",
-          message: "Compliance passed, but the regulated transaction cannot be authorized until Supabase audit persistence is configured.",
-        },
-        { status: 503 },
-      );
-    }
-
     const providerService = body.providerServiceAmountCents ?? 0;
     const reserve = body.refundReserveCents ?? 0;
     const providerPayable = Math.max(0, providerService - reserve);
@@ -85,7 +150,10 @@ export async function POST(request: Request) {
       decision_code: decision.code,
       reasons: decision.reasons,
       required_actions: decision.requiredActions,
-      request_snapshot: body,
+      request_snapshot: {
+        ...body,
+        credentialSource: "provider_credentials",
+      },
     });
 
     const transaction = await insertRow<Record<string, unknown>>("regulated_transactions", {
