@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { bearerToken, userRest, verifySupabaseUser } from '@/lib/supabase/user-rest';
-import { requireCapability } from '@/lib/security/control-plane';
+import { requireCapability, requireUserSecurity } from '@/lib/security/control-plane';
 
 export async function GET(request: Request) {
   const token = bearerToken(request);
@@ -17,8 +17,8 @@ export async function POST(request: Request) {
   const user = await verifySupabaseUser(token);
   if (!user) return NextResponse.json({ error: 'invalid_session' }, { status: 401 });
 
-  try { await requireCapability('gifts'); }
-  catch { return NextResponse.json({ error: 'security_freeze', message: 'Gift transactions are temporarily frozen by Quantum Security.' }, { status: 423 }); }
+  try { await requireCapability('gifts'); await requireUserSecurity(user.id,{stepUpAction:'gift'}); }
+  catch(error) { const code=error instanceof Error?error.message:'security_freeze'; return NextResponse.json({ error: code, message: 'Gift transaction is blocked until the security requirement is cleared.' }, { status: 423 }); }
 
   const body = await request.json().catch(() => ({}));
   const receiverId = String(body.receiverId ?? '').trim();
