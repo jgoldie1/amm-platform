@@ -5,6 +5,9 @@ on:
   push:
     branches: [main, agent/complianceos-regulated-services]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,6 +30,28 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-placeholder
         run: npm run build
 
+  supply-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install without lifecycle scripts
+        run: npm install --ignore-scripts --no-fund
+      - name: High/critical dependency audit
+        run: npm audit --audit-level=high
+      - name: Generate CycloneDX SBOM
+        run: npm sbom --sbom-format=cyclonedx > tryamm-sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tryamm-sbom
+          path: tryamm-sbom.cdx.json
+          retention-days: 30
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +59,14 @@ jobs:
       - name: Reject obvious committed secret values
         shell: bash
         run: |
-          if grep -RInE --exclude-dir=.git --exclude='.env.example' --exclude='*.lock' '(sk_live_[A-Za-z0-9]{20,}|sk_test_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9._-]{20,}|ghp_[A-Za-z0-9]{20,})' .; then
+          if grep -RInE --exclude-dir=.git --exclude='.env.example' --exclude='*.lock' '(sk_live_[A-Za-z0-9]{20,}|sk_test_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9._-]{20,}|ghp_[A-Za-z0-9]{20,}|gho_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----)' .; then
             echo 'Potential secret value committed to repository.'
+            exit 1
+          fi
+      - name: Reject service-role secrets in public-prefixed variables
+        shell: bash
+        run: |
+          if grep -RInE --exclude-dir=.git --exclude='*.lock' 'NEXT_PUBLIC_.*(SECRET|SERVICE_ROLE|PRIVATE_KEY|AUTH_TOKEN)' .; then
+            echo 'Privileged secret exposed through NEXT_PUBLIC_* variable.'
             exit 1
           fi
