@@ -8,6 +8,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/holonet" },
 };
 
+const layers = [
+  ["Holo DNS", "Public/private naming with DNSSEC-required production zones.", "SOFTWARE READY"],
+  ["Holo Identity / PKI", "Signed identities, certificates, issuer trust and mTLS policy.", "SOFTWARE READY"],
+  ["Quantum WiFi", "Latency-aware Wi-Fi/mesh orchestration, secure roaming and QoS for LIVE, games, XR, accessibility and safety traffic.", "SOFTWARE READY"],
+  ["Holo Edge / CDN", "Region-aware edge selection using health, load and P95 latency.", "SOFTWARE READY"],
+  ["Holo Search Index", "Public search index with private content excluded by policy.", "SOFTWARE READY"],
+  ["Holo Advertise Exchange", "Placement, locale, safety and budget-aware campaign selection.", "SOFTWARE READY"],
+  ["Holo Federation", "Signed node-to-node capability exchange with explicit trust levels.", "SOFTWARE READY"],
+  ["Evidence Anchoring", "Checksummed network evidence with optional blockchain anchoring.", "SOFTWARE READY"],
+  ["Quantum Lag Routing", "Telemetry-driven routing decisions for latency, errors, saturation and packet loss.", "SOFTWARE READY"],
+  ["External IP / ASN / BGP", "Requires legitimate address-space authority, ASN, RPKI, upstream/peering agreements and operator approval.", "ACTIVATION REQUIRED"],
+  ["Physical Edge / Data Center", "Requires real routers, access points, servers/colo/cloud edge capacity, DDoS services and operations.", "ACTIVATION REQUIRED"],
+];
+
 export default function HoloNetPage() {
   const services = listHoloNetServices();
   return (
@@ -23,15 +37,25 @@ export default function HoloNetPage() {
       </header>
       <section className="product-hero">
         <p className="eyebrow">TRYAMM NETWORK LAYER</p>
-        <h1>HoloNet</h1>
-        <p className="lede">One service network for TRYAMM search, AI, media, commerce, realtime experiences, games and connected devices. Public services stay crawlable; private/high-impact services stay authenticated, signed and audited.</p>
+        <h1>HoloNet + Quantum WiFi</h1>
+        <p className="lede">HoloNet is the distributed application/network control plane. Quantum WiFi is its wireless access layer, optimizing secure device connectivity and prioritizing realtime, accessibility and safety-critical traffic without bypassing network security.</p>
         <div className="actions">
           <Link href="/discover" className="button-link">Explore public HoloNet</Link>
           <Link href="/stubbs-ai" className="button-link secondary">Ask Stubbs AI</Link>
         </div>
       </section>
+
+      <section className="world-grid" aria-labelledby="layers-heading">
+        <div className="section-heading"><p className="eyebrow">INDEPENDENT NETWORK STACK</p><h2 id="layers-heading">Network layers</h2></div>
+        <div className="cards">
+          {layers.map(([title, description, status]) => (
+            <article key={title}><p className="eyebrow">{status}</p><h3>{title}</h3><p>{description}</p></article>
+          ))}
+        </div>
+      </section>
+
       <section className="world-grid" aria-labelledby="services-heading">
-        <div className="section-heading"><h2 id="services-heading">Connected services</h2></div>
+        <div className="section-heading"><h2 id="services-heading">Connected HoloNet services</h2></div>
         <div className="cards">
           {services.map((service) => (
             <article key={service.id}>
