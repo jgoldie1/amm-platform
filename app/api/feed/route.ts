@@ -4,10 +4,8 @@ import { bearerToken, userRest, verifySupabaseUser } from '@/lib/supabase/user-r
 export async function GET(request: Request) {
   const token = bearerToken(request);
   if (!token) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  const user = await verifySupabaseUser(token);
-  if (!user) return NextResponse.json({ error: 'invalid_session' }, { status: 401 });
-
-  const posts = await userRest(token, 'posts?select=*&order=created_at.desc&limit=50');
+  if (!(await verifySupabaseUser(token))) return NextResponse.json({ error: 'invalid_session' }, { status: 401 });
+  const posts = await userRest(token, 'feed_posts?select=*&order=created_at.desc&limit=50');
   return NextResponse.json({ posts });
 }
 
@@ -17,24 +15,17 @@ export async function POST(request: Request) {
   const user = await verifySupabaseUser(token);
   if (!user) return NextResponse.json({ error: 'invalid_session' }, { status: 401 });
   const body = await request.json();
-
-  const allowedKinds = new Set(['video','image','text','live_replay','game_clip','omni_box_clip','marketplace']);
-  if (!allowedKinds.has(body.kind)) return NextResponse.json({ error: 'invalid_kind' }, { status: 400 });
-
-  const rows = await userRest(token, 'posts', {
-    method: 'POST',
-    prefer: 'return=representation',
-    body: {
-      creator_id: user.id,
-      kind: body.kind,
-      caption: body.caption ?? null,
+  const visibility = ['public','followers','private'].includes(body.visibility) ? body.visibility : 'public';
+  if (!body.body && !body.mediaUrl) return NextResponse.json({ error: 'post_content_required' }, { status: 400 });
+  const posts = await userRest(token, 'feed_posts', {
+    method: 'POST', prefer: 'return=representation', body: {
+      user_id: user.id,
+      body: body.body ?? null,
       media_url: body.mediaUrl ?? null,
-      thumbnail_url: body.thumbnailUrl ?? null,
+      media_type: body.mediaType ?? null,
       locale: body.locale ?? 'en',
-      alt_text: body.altText ?? null,
-      captions_url: body.captionsUrl ?? null,
-      visibility: body.visibility ?? 'public',
+      visibility,
     },
   });
-  return NextResponse.json({ posts: rows }, { status: 201 });
+  return NextResponse.json({ posts }, { status: 201 });
 }
