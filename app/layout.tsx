@@ -67,11 +67,6 @@ const websiteSchema = {
   '@type': 'WebSite',
   name: 'TRYAMM',
   url: siteUrl,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${siteUrl}/search?q={search_term_string}`,
-    'query-input': 'required name=search_term_string',
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
