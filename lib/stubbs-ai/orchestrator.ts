@@ -1,6 +1,7 @@
 import { retrieveGoogolplexMemory } from "@/lib/googolplex-memory";
 import { buildQuantumSchedule } from "@/lib/quantum-speed/scheduler";
 import { evaluateGuardian } from "./guardian";
+import { routeAdvancedLLM } from "./model-router";
 import type { StubbsAIRequest, StubbsAIResponse } from "./types";
 
 const domainRoutes: Record<StubbsAIRequest["domain"], string> = {
@@ -24,11 +25,14 @@ export async function orchestrateStubbsAI(
 ): Promise<StubbsAIResponse> {
   const schedule = buildQuantumSchedule(request);
   const guardian = evaluateGuardian(request);
-  const memory = await retrieveGoogolplexMemory(request, schedule.memoryLimit);
+  const modelRoute = routeAdvancedLLM(request);
+  const memoryLimit = Math.min(schedule.memoryLimit, modelRoute.maxContextItems);
+  const memory = await retrieveGoogolplexMemory(request, memoryLimit);
 
   const nextActions = [
     ...schedule.actions,
-    guardian.mode === "review"
+    `advanced LLM lane: ${modelRoute.lane} — ${modelRoute.reason}`,
+    guardian.mode === "review" || modelRoute.lane === "deterministic_only"
       ? `execute ${domainRoutes[request.domain]} only through its deterministic verifier`
       : `route to ${domainRoutes[request.domain]}`,
     "record verified state changes back into Googolplex Memory after successful execution",
