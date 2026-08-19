@@ -15,12 +15,23 @@ All non-static product modules must integrate through the shared Stubbs AI runti
 7. Quantum Speed scheduling
 8. Quantum Lag Buster latency protection
 9. Guardian risk gate
-10. Domain-specific deterministic service
-11. Accessibility + multilingual acceptance gate
-12. Evidence/audit verification
-13. Googolplex Memory state update
+10. Quantum Security policy gate
+11. Domain-specific deterministic service
+12. Accessibility + multilingual acceptance gate
+13. Evidence/audit verification
+14. Googolplex Memory state update
 
 Static assets, build tooling, and public health checks are exempt from the runtime path.
+
+## Quantum Security rule
+
+Quantum Security is the mandatory cross-platform security baseline for HoloNet, Quantum Radio, Quantum Towers, Stubbs AI/HoloGPT, Money Engine, Marketplace, LIVE/PK, Games/Living Worlds, Omni Box/Free TV, HoloForge, MobilityOS, SpaceOS, Founder Archive and every future TRYAMM domain.
+
+Security must be zero-trust and fail-closed for high-impact actions. Required controls include hardware-rooted identity where hardware supports it, secure/measured boot for managed devices, signed firmware/configuration/releases, mutually authenticated private service connections, encrypted transport, least privilege, short-lived credentials, key/certificate rotation and revocation, tamper-evident audit evidence, network/service segmentation, rate/DDoS controls, anomaly detection, secret isolation, SBOM/dependency tracking and incident recovery procedures.
+
+The cryptographic architecture must remain crypto-agile and post-quantum-ready. Production claims such as `post-quantum secure`, `quantum-resistant`, or `quantum-proof` require the exact algorithms, protocols, libraries, hardware, configurations and operational controls to be independently validated. Optional QRNG hardware may contribute entropy but may never be a single point of cryptographic failure; uncertain QRNG health must trigger alerting and an approved CSPRNG fallback.
+
+Stubbs AI, Quantum Speed Engine, Quantum Lag Buster, HoloNet routing and any administrator-facing AI may diagnose, recommend, prioritize or contain traffic but may not bypass authentication, signatures, integrity checks, certificate validation, ComplianceOS, Money Engine controls, deterministic physical-control boundaries, RF regulatory controls, owner-only privacy controls or emergency isolation/revocation actions.
 
 ## Hierarchy AGI rule
 
@@ -76,9 +87,10 @@ A mobility mission is not production-ready merely because planning succeeds. Rea
 
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, founder-archive retrieval process, founder-context assembler, or legacy-recovery process may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, founder-archive retrieval process, founder-context assembler, legacy-recovery process, HoloNet router, Quantum WiFi policy engine, Quantum Radio/Tower management plane, or Quantum Security anomaly-response component may bypass:
 
 - authentication or authorization
+- cryptographic identity/signature/integrity validation
 - Supabase RLS
 - owner-only Founder Archive access
 - regulated-service credential verification
@@ -87,9 +99,10 @@ No model, cache, latency optimizer, memory component, hierarchy agent, sensory a
 - audit persistence
 - explicit safety gates
 - deterministic physical-control boundaries
+- RF/spectrum regulatory controls
 - evidence requirements for legacy-design stage advancement
 
-When a required control is unavailable, high-impact, regulated, physical-motion, founder-private, and production-candidate actions fail closed.
+When a required control is unavailable, high-impact, regulated, physical-motion, founder-private, production-candidate, payment, identity, and infrastructure-control actions fail closed.
 
 ## Memory rule
 
@@ -97,13 +110,13 @@ Googolplex Memory is the shared application memory architecture. New modules mus
 
 ## Speed rule
 
-Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, physical-control-critical, privacy-critical, or evidence/provenance-critical work.
+Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, physical-control-critical, privacy-critical, security-critical, or evidence/provenance-critical work.
 
 ## Benchmark & Proof rule
 
-Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, accessibility, multilingual behavior, MobilityOS, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use equivalent workload definitions for baseline and optimized targets.
+Performance and security claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, accessibility, multilingual behavior, MobilityOS, HoloNet, Quantum WiFi, Quantum Radio/Towers, Quantum Security, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use equivalent workload definitions for baseline and optimized targets.
 
-Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Accessibility proof should additionally measure applicable task-completion rates for keyboard-only, screen-reader, voice/switch/one-hand interaction, caption/transcription coverage, reduced-motion paths, accessible error recovery, translation success, and language-switch latency. Mobility proof should additionally measure applicable mission completion, dispatch/planning latency, energy use, charging impact, human-intervention rate, accessibility completion, emergency-stop latency, collision/near-miss events, and deterministic safety-gate preservation. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
+Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, safety-gate preservation, authentication failure rate, signature/integrity failures, firmware-attestation success, blocked unauthorized-route attempts, DDoS/rate-limit activations, mean time to quarantine/revoke, secret-scan findings, SBOM/dependency vulnerabilities and QRNG health when those values are actually instrumented. Accessibility proof should additionally measure applicable task-completion rates for keyboard-only, screen-reader, voice/switch/one-hand interaction, caption/transcription coverage, reduced-motion paths, accessible error recovery, translation success, and language-switch latency. Mobility proof should additionally measure applicable mission completion, dispatch/planning latency, energy use, charging impact, human-intervention rate, accessibility completion, emergency-stop latency, collision/near-miss events, and deterministic safety-gate preservation. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
 
 ## Domain routing
 
@@ -111,4 +124,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment. Legacy physical inventions additionally require source verification, reconstructed specifications, digital-twin/simulation evidence, prototype evidence, independent verification, and the applicable production safety/regulatory gates before being represented as production candidates. Founder Archive/HoloGPT integration additionally requires authenticated owner identity, RLS verification, retrieval-isolation tests, audit logging for privileged mutations, and successful ingestion/reconciliation tests before any claim of complete historical coverage.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, security acceptance appropriate to its risk, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Infrastructure/hardware modules additionally require secure boot/key-provisioning verification, SBOM/dependency review, signed-update verification, authorized penetration testing, factory security checks, incident/recovery procedures, and applicable regulatory/certification evidence. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment. Legacy physical inventions additionally require source verification, reconstructed specifications, digital-twin/simulation evidence, prototype evidence, independent verification, and the applicable production safety/regulatory gates before being represented as production candidates. Founder Archive/HoloGPT integration additionally requires authenticated owner identity, RLS verification, retrieval-isolation tests, audit logging for privileged mutations, and successful ingestion/reconciliation tests before any claim of complete historical coverage.
