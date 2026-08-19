@@ -1,4 +1,6 @@
 import type { LagSample } from "@/lib/quantum-speed/lag-buster";
+import type { FusedPerception, SenseObservation } from "./senses";
+import type { StubbsAISelfModel } from "./self-model";
 
 export type TryammDomain =
   | "core"
@@ -27,6 +29,7 @@ export interface StubbsAIRequest {
   memoryQuery?: string;
   payload?: Record<string, unknown>;
   lagSamples?: LagSample[];
+  senseObservations?: SenseObservation[];
 }
 
 export interface MemoryContextItem {
@@ -49,7 +52,10 @@ export interface StubbsAIResponse {
   requestId: string;
   domain: TryammDomain;
   route: string;
+  hierarchyPath: string[];
   memory: MemoryContextItem[];
+  perception: FusedPerception;
+  selfModel: StubbsAISelfModel;
   guardian: GuardianDecision;
   lagMode: "normal" | "degraded" | "protected";
   nextActions: string[];
