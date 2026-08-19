@@ -3,7 +3,7 @@ import { bearerToken, verifySupabaseUser } from '@/lib/supabase/user-rest';
 import { selectRows } from '@/lib/supabase/server-rest';
 import { ensureLiveKitRoom, mintLiveKitToken } from '@/lib/livekit/server';
 
-const validModes = new Set(['music','news','debate','faith','shopping','game','tv','starverse','general']);
+const validModes = new Set(['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','karaoke','mic','general']);
 
 type RoomMember = { room_name: string; user_id: string; member_role: string };
 
@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'host_permission_denied' }, { status: 403 });
   }
 
-  if (requestedRole === 'host') await ensureLiveKitRoom(roomName, mode === 'debate' ? 20 : 12);
+  const participantLimit = mode === 'debate' || mode === 'showcase' || mode === 'talent' || mode === 'karaoke' ? 20 : 12;
+  if (requestedRole === 'host') await ensureLiveKitRoom(roomName, participantLimit);
   const grant = await mintLiveKitToken({
     roomName,
     identity: user.id,
