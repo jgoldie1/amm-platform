@@ -1,3 +1,20 @@
+export interface AccessibilityBenchmarkEvidence {
+  interactionMode?:
+    | "default"
+    | "keyboard_only"
+    | "screen_reader"
+    | "voice_control"
+    | "switch_control"
+    | "one_hand"
+    | "reduced_motion";
+  locale?: string;
+  taskCompleted?: boolean;
+  accessibleErrorRecovered?: boolean;
+  captionsAvailable?: boolean;
+  translationSucceeded?: boolean;
+  languageSwitchMs?: number;
+}
+
 export interface BenchmarkSample {
   label: string;
   latencyMs: number;
@@ -8,6 +25,7 @@ export interface BenchmarkSample {
   cacheHit?: boolean;
   success: boolean;
   safetyGatePreserved: boolean;
+  accessibility?: AccessibilityBenchmarkEvidence;
   timestamp: string;
 }
 
@@ -24,6 +42,11 @@ export interface BenchmarkSummary {
   successRate: number;
   cacheHitRate: number;
   safetyGatePreservationRate: number;
+  accessibleTaskCompletionRate?: number;
+  accessibleErrorRecoveryRate?: number;
+  captionCoverageRate?: number;
+  translationSuccessRate?: number;
+  avgLanguageSwitchMs?: number;
   requestsPerSecond?: number;
 }
 
@@ -38,6 +61,11 @@ export interface BeforeAfterProof {
     successRatePoints: number;
     cacheHitRatePoints: number;
     safetyGatePreservationPoints: number;
+    accessibleTaskCompletionPoints?: number;
+    accessibleErrorRecoveryPoints?: number;
+    captionCoveragePoints?: number;
+    translationSuccessPoints?: number;
+    languageSwitchLatencyPct?: number;
   };
 }
 
@@ -55,6 +83,20 @@ function average(values: number[]): number {
 
 function rate(matches: number, total: number): number {
   return total === 0 ? 0 : matches / total;
+}
+
+function optionalBooleanRate(
+  samples: BenchmarkSample[],
+  selector: (sample: BenchmarkSample) => boolean | undefined,
+): number | undefined {
+  const values = samples.map(selector).filter((value): value is boolean => typeof value === "boolean");
+  if (values.length === 0) return undefined;
+  return rate(values.filter(Boolean).length, values.length);
+}
+
+function optionalAverage(values: Array<number | undefined>): number | undefined {
+  const measured = values.filter((value): value is number => typeof value === "number");
+  return measured.length ? average(measured) : undefined;
 }
 
 export function summarizeBenchmark(
@@ -86,6 +128,25 @@ export function summarizeBenchmark(
       samples.filter((sample) => sample.safetyGatePreserved).length,
       samples.length,
     ),
+    accessibleTaskCompletionRate: optionalBooleanRate(
+      samples,
+      (sample) => sample.accessibility?.taskCompleted,
+    ),
+    accessibleErrorRecoveryRate: optionalBooleanRate(
+      samples,
+      (sample) => sample.accessibility?.accessibleErrorRecovered,
+    ),
+    captionCoverageRate: optionalBooleanRate(
+      samples,
+      (sample) => sample.accessibility?.captionsAvailable,
+    ),
+    translationSuccessRate: optionalBooleanRate(
+      samples,
+      (sample) => sample.accessibility?.translationSucceeded,
+    ),
+    avgLanguageSwitchMs: optionalAverage(
+      samples.map((sample) => sample.accessibility?.languageSwitchMs),
+    ),
     requestsPerSecond:
       elapsedSeconds && elapsedSeconds > 0 ? samples.length / elapsedSeconds : undefined,
   };
@@ -94,6 +155,16 @@ export function summarizeBenchmark(
 function percentChange(before: number, after: number): number {
   if (before === 0) return 0;
   return ((after - before) / before) * 100;
+}
+
+function optionalPointChange(before?: number, after?: number): number | undefined {
+  if (typeof before !== "number" || typeof after !== "number") return undefined;
+  return (after - before) * 100;
+}
+
+function optionalPercentChange(before?: number, after?: number): number | undefined {
+  if (typeof before !== "number" || typeof after !== "number") return undefined;
+  return percentChange(before, after);
 }
 
 export function compareBenchmarks(
@@ -121,6 +192,26 @@ export function compareBenchmarks(
       cacheHitRatePoints: (optimized.cacheHitRate - baseline.cacheHitRate) * 100,
       safetyGatePreservationPoints:
         (optimized.safetyGatePreservationRate - baseline.safetyGatePreservationRate) * 100,
+      accessibleTaskCompletionPoints: optionalPointChange(
+        baseline.accessibleTaskCompletionRate,
+        optimized.accessibleTaskCompletionRate,
+      ),
+      accessibleErrorRecoveryPoints: optionalPointChange(
+        baseline.accessibleErrorRecoveryRate,
+        optimized.accessibleErrorRecoveryRate,
+      ),
+      captionCoveragePoints: optionalPointChange(
+        baseline.captionCoverageRate,
+        optimized.captionCoverageRate,
+      ),
+      translationSuccessPoints: optionalPointChange(
+        baseline.translationSuccessRate,
+        optimized.translationSuccessRate,
+      ),
+      languageSwitchLatencyPct: optionalPercentChange(
+        baseline.avgLanguageSwitchMs,
+        optimized.avgLanguageSwitchMs,
+      ),
     },
   };
 }
