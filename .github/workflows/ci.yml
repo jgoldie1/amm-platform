@@ -1,0 +1,32 @@
+name: TRYAMM CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject obvious committed secrets
+        shell: bash
+        run: |
+          if grep -RInE --exclude-dir=.git --exclude='*.lock' '(sk_live_|sk_test_|service_role|api[_-]?key[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_-]{20,})' .; then
+            echo 'Potential secret committed to repository.'
+            exit 1
+          fi
