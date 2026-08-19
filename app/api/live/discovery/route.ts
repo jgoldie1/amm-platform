@@ -56,7 +56,6 @@ export async function GET(request: Request) {
   }
   const roomByHost = new Map<string, string>();
   for (const room of hostRooms) if (!roomByHost.has(room.user_id)) roomByHost.set(room.user_id, room.room_name);
-
   return NextResponse.json({ creators: creators.map(creator => ({ ...creator, room_name: creator.is_live ? roomByHost.get(creator.user_id) ?? null : null })) });
 }
 
@@ -66,7 +65,7 @@ export async function PATCH(request: Request) {
   const user = await verifySupabaseUser(token);
   if (!user) return NextResponse.json({ error: 'invalid_session' }, { status: 401 });
   const body = await request.json();
-  const allowedModes = new Set(['creator','live','pk','shopping','game','music','starverse','movie','tv','news','debate','faith']);
+  const allowedModes = new Set(['creator','live','pk','shopping','game','music','starverse','showcase','talent','karaoke','mic','vocal-box','movie','tv','news','debate','faith']);
   const mode = allowedModes.has(body.mode) ? body.mode : 'creator';
   const rows = await userRest(token, 'creator_live_presence?on_conflict=user_id', {
     method: 'POST',
