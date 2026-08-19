@@ -21,8 +21,9 @@ const metricLabels: Record<string, string> = {
 export default function BenchmarkProofPage() {
   const [proof, setProof] = useState<Proof | null>(null);
   const [message, setMessage] = useState(
-    "No measured benchmark has been loaded yet. Run the Benchmark & Proof API with baseline and optimized samples.",
+    "No measured benchmark has been loaded yet. Run the controlled benchmark runner and persist the proof.",
   );
+  const [loading, setLoading] = useState(false);
 
   const rows = useMemo(() => {
     if (!proof) return [];
@@ -34,11 +35,28 @@ export default function BenchmarkProofPage() {
     }));
   }, [proof]);
 
-  async function loadLatestExample() {
-    setProof(null);
-    setMessage(
-      "The dashboard does not fabricate results. POST measured samples to /api/benchmark-proof, then connect the returned proof object here or persist/read it from Supabase.",
-    );
+  async function loadLatestProof() {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/benchmark-proof", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok || !data.proof) {
+        setProof(null);
+        setMessage(data.message ?? "No persisted measured proof is available yet.");
+        return;
+      }
+      setProof(data.proof as Proof);
+      setMessage(
+        `Loaded measured proof${data.runName ? `: ${data.runName}` : ""}${
+          data.createdAt ? ` — ${new Date(data.createdAt).toLocaleString()}` : ""
+        }`,
+      );
+    } catch {
+      setProof(null);
+      setMessage("Unable to load measured proof from the server.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -74,17 +92,19 @@ export default function BenchmarkProofPage() {
           <strong style={{ color: "#E8B944" }}>Measurement status</strong>
           <p>{message}</p>
           <button
-            onClick={loadLatestExample}
+            onClick={loadLatestProof}
+            disabled={loading}
             style={{
               padding: "12px 18px",
               borderRadius: 999,
               border: "1px solid #4FE3FF",
               background: "transparent",
               color: "white",
-              cursor: "pointer",
+              cursor: loading ? "wait" : "pointer",
+              opacity: loading ? 0.65 : 1,
             }}
           >
-            Check benchmark instructions
+            {loading ? "Loading measured proof…" : "Load latest measured proof"}
           </button>
         </div>
 
@@ -121,6 +141,10 @@ export default function BenchmarkProofPage() {
             })
           )}
         </div>
+
+        <p style={{ marginTop: 28, opacity: 0.64, fontSize: 14 }}>
+          Visual concept art may illustrate the dashboard, but only measurements loaded from this proof pipeline count as benchmark evidence.
+        </p>
       </section>
     </main>
   );
