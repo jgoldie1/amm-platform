@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { evaluateCompliance } from "@/lib/compliance/engine";
 import type { ComplianceRequest, ProviderCredential } from "@/lib/compliance/types";
+import { orchestrateStubbsAI } from "@/lib/stubbs-ai/orchestrator";
 import {
   insertRow,
   isSupabaseConfigured,
@@ -67,6 +68,22 @@ export async function POST(request: Request) {
       );
     }
 
+    const intelligence = await orchestrateStubbsAI({
+      requestId: crypto.randomUUID(),
+      domain: "money",
+      action: "authorize_payment",
+      actorId: body.customerId,
+      riskClass: "regulated",
+      memoryQuery: `${body.vertical} ${body.jurisdiction} regulated payment authorization`,
+      payload: {
+        providerId: body.providerId,
+        vertical: body.vertical,
+        jurisdiction: body.jurisdiction,
+        feeType: body.requestedFeeType,
+        requestedAmountCents: body.requestedAmountCents,
+      },
+    });
+
     const encodedProvider = encodeURIComponent(body.providerId ?? "");
     const encodedVertical = encodeURIComponent(body.vertical ?? "");
     const encodedJurisdiction = encodeURIComponent(body.jurisdiction ?? "");
@@ -101,6 +118,7 @@ export async function POST(request: Request) {
         request_snapshot: {
           ...body,
           credentialSource: "provider_credentials",
+          stubbsAIRequestId: intelligence.requestId,
         },
       });
 
@@ -108,6 +126,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           paymentAuthorized: false,
+          intelligence,
           error: "COMPLIANCE_GATE_DENIED",
           decision,
         },
@@ -129,6 +148,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           paymentAuthorized: false,
+          intelligence,
           error: "INVALID_TRANSACTION_COMPONENT",
           message: "All transaction components must be non-negative integer cents.",
         },
@@ -153,6 +173,7 @@ export async function POST(request: Request) {
       request_snapshot: {
         ...body,
         credentialSource: "provider_credentials",
+        stubbsAIRequestId: intelligence.requestId,
       },
     });
 
@@ -182,6 +203,9 @@ export async function POST(request: Request) {
       payload: {
         complianceCheckId: complianceCheck.id,
         decisionCode: decision.code,
+        stubbsAIRequestId: intelligence.requestId,
+        guardianMode: intelligence.guardian.mode,
+        lagMode: intelligence.lagMode,
       },
     });
 
@@ -190,6 +214,7 @@ export async function POST(request: Request) {
         ok: true,
         paymentAuthorized: true,
         persisted: true,
+        intelligence,
         decision,
         transaction,
       },
