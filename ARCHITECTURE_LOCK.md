@@ -16,8 +16,9 @@ All non-static product modules must integrate through the shared Stubbs AI runti
 8. Quantum Lag Buster latency protection
 9. Guardian risk gate
 10. Domain-specific deterministic service
-11. Evidence/audit verification
-12. Googolplex Memory state update
+11. Accessibility + multilingual acceptance gate
+12. Evidence/audit verification
+13. Googolplex Memory state update
 
 Static assets, build tooling, and public health checks are exempt from the runtime path.
 
@@ -33,9 +34,17 @@ Stubbs AI may maintain a machine-readable model of its configured identity, capa
 
 Vision, hearing, touch, smell, and taste are treated as perception channels only when supported by actual media, device, sensor, or explicitly simulated inputs. Simulated channels must be labeled and may not be represented as physical measurements.
 
+## Accessibility and multilingual rule
+
+Accessibility is a platform-wide acceptance requirement, not an optional feature. Product flows must provide an accessible path appropriate to the interaction, including keyboard/switch/voice access, screen-reader semantics, visible focus, text alternatives, captions/transcription for media where applicable, reduced-motion alternatives, scalable text/targets, non-color-only status/error communication, and one-hand/low-dexterity interaction support where applicable. Disability support must include visual, hearing, speech, mobility/dexterity, cognitive/learning, seizure/motion-sensitivity, and temporary/situational impairment use cases.
+
+Multilingual support is part of the same acceptance gate. User-facing modules must carry locale/language metadata, support translation/localization workflows, preserve meaning for safety/compliance/payment disclosures, and provide fallback language behavior rather than silently failing. AI translation is assistive; legally or clinically consequential language may require verified human or approved-domain translation workflows.
+
+New modules may not be marked complete solely because the default mouse/touch English path works.
+
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, or self-model may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, or accessibility adapter may bypass:
 
 - authentication or authorization
 - Supabase RLS
@@ -53,11 +62,13 @@ Googolplex Memory is the shared application memory architecture. New modules mus
 
 ## Speed rule
 
-Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical work.
+Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical or accessibility-critical work.
 
 ## Benchmark & Proof rule
 
-Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use the same workload definition for baseline and optimized targets. Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
+Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, accessibility, multilingual behavior, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use equivalent workload definitions for baseline and optimized targets.
+
+Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Accessibility proof should additionally measure applicable task-completion rates for keyboard-only, screen-reader, voice/switch/one-hand interaction, caption/transcription coverage, reduced-motion paths, accessible error recovery, translation success, and language-switch latency. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
 
 ## Domain routing
 
@@ -65,4 +76,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, and deployed-environment verification appropriate to that module. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made.
