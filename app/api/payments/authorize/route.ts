@@ -57,22 +57,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const providerService = body.providerServiceAmountCents ?? 0;
-    const reserve = body.refundReserveCents ?? 0;
-    const providerPayable = Math.max(0, providerService - reserve);
-
     if (!isSupabaseConfigured()) {
       return NextResponse.json(
         {
-          ok: true,
-          paymentAuthorized: true,
+          ok: false,
+          paymentAuthorized: false,
           persisted: false,
           decision,
-          warning: "Compliance passed, but Supabase is not configured. No production payment should be created until the audit record is persisted.",
+          error: "AUDIT_PERSISTENCE_REQUIRED",
+          message: "Compliance passed, but the regulated transaction cannot be authorized until Supabase audit persistence is configured.",
         },
-        { status: 200 },
+        { status: 503 },
       );
     }
+
+    const providerService = body.providerServiceAmountCents ?? 0;
+    const reserve = body.refundReserveCents ?? 0;
+    const providerPayable = Math.max(0, providerService - reserve);
 
     const complianceCheck = await insertRow<Record<string, unknown>>("compliance_checks", {
       provider_id: body.providerId,
