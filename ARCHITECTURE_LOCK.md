@@ -42,9 +42,17 @@ Multilingual support is part of the same acceptance gate. User-facing modules mu
 
 New modules may not be marked complete solely because the default mouse/touch English path works.
 
+## MobilityOS and robotics rule
+
+MobilityOS covers electric vehicles, delivery drones, passenger/cargo eVTOL or flying-vehicle concepts, ground and warehouse robots, agricultural robots, marine vehicles, and SpaceOS rovers. Stubbs AI may plan, dispatch, coordinate, translate, remember, and optimize missions, but it may not directly generate or execute steering, throttle, braking, rotor, flight-control, or actuator commands.
+
+Physical motion must remain behind deterministic controllers and a fail-closed safety envelope appropriate to the vehicle class. Required controls may include maintenance readiness, battery/energy reserve, payload/speed/altitude limits, geofences, collision avoidance, communications health, authorized operator state, simulation/digital-twin checks, emergency stop, and human approval. Accessibility requirements such as wheelchair/ramp/lift compatibility, accessible pickup/handoff, one-hand/voice/switch control, captions, haptic/visual alerts, and multilingual assistance are part of mobility dispatch acceptance when applicable.
+
+A mobility mission is not production-ready merely because planning succeeds. Real-world deployment additionally requires the applicable hardware validation, operator procedures, regulatory approvals/certifications, insurance, telemetry, emergency procedures, and jurisdiction-specific operating authorization.
+
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, or accessibility adapter may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, or mobility planner may bypass:
 
 - authentication or authorization
 - Supabase RLS
@@ -53,22 +61,23 @@ No model, cache, latency optimizer, memory component, hierarchy agent, sensory a
 - payment and payout controls
 - audit persistence
 - explicit safety gates
+- deterministic physical-control boundaries
 
-When a required control is unavailable, high-impact and regulated actions fail closed.
+When a required control is unavailable, high-impact, regulated, and physical-motion actions fail closed.
 
 ## Memory rule
 
-Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, and other transactional state; memory stores context and verified summaries, not a replacement ledger.
+Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, mobility telemetry/mission state, and other transactional state; memory stores context and verified summaries, not a replacement ledger.
 
 ## Speed rule
 
-Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical or accessibility-critical work.
+Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, or physical-control-critical work.
 
 ## Benchmark & Proof rule
 
-Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, accessibility, multilingual behavior, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use equivalent workload definitions for baseline and optimized targets.
+Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, accessibility, multilingual behavior, MobilityOS, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use equivalent workload definitions for baseline and optimized targets.
 
-Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Accessibility proof should additionally measure applicable task-completion rates for keyboard-only, screen-reader, voice/switch/one-hand interaction, caption/transcription coverage, reduced-motion paths, accessible error recovery, translation success, and language-switch latency. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
+Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Accessibility proof should additionally measure applicable task-completion rates for keyboard-only, screen-reader, voice/switch/one-hand interaction, caption/transcription coverage, reduced-motion paths, accessible error recovery, translation success, and language-switch latency. Mobility proof should additionally measure applicable mission completion, dispatch/planning latency, energy use, charging impact, human-intervention rate, accessibility completion, emergency-stop latency, collision/near-miss events, and deterministic safety-gate preservation. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
 
 ## Domain routing
 
@@ -76,4 +85,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment.
