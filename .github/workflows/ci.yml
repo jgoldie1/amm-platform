@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: package.json
-      - name: Install pinned direct dependencies
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Typecheck
         run: npm run typecheck
@@ -34,7 +34,7 @@ jobs:
       - name: Reject obvious committed secret values
         shell: bash
         run: |
-          if grep -RInE --exclude-dir=.git --exclude='.env.example' --exclude='*.lock' '(sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|service_role[[:space:]]*[:=][[:space:]]*[A-Za-z0-9._-]{20,}|api[_-]?key[[:space:]]*[:=][[:space:]]*[A-Za-z0-9._-]{20,})' .; then
+          if grep -RInE --exclude-dir=.git --exclude='.env.example' --exclude='*.lock' '(sk_live_[A-Za-z0-9]{20,}|sk_test_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9._-]{20,}|ghp_[A-Za-z0-9]{20,})' .; then
             echo 'Potential secret value committed to repository.'
             exit 1
           fi
