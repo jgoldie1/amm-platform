@@ -11,7 +11,11 @@
     "benchmark:stubbs-ai": "node scripts/benchmark-stubbs-ai.mjs"
   },
   "dependencies": {
+    "@livekit/components-react": "2.9.17",
+    "@livekit/components-styles": "1.1.6",
     "@supabase/supabase-js": "2.112.3",
+    "livekit-client": "2.15.6",
+    "livekit-server-sdk": "2.17.0",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
