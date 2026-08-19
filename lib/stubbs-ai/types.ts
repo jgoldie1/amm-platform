@@ -10,6 +10,7 @@ export type TryammDomain =
   | "marketplace"
   | "property"
   | "logistics"
+  | "mobility"
   | "worlds"
   | "spaceos"
   | "starverse"
