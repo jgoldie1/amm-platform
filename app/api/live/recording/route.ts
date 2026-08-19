@@ -22,17 +22,7 @@ function recordingOutput(roomName: string) {
   if (!accessKey || !secret || !bucket) throw new Error('RECORDING_STORAGE_NOT_CONFIGURED');
   return new EncodedFileOutput({
     filepath: `tryamm-live/${roomName}/{time}.mp4`,
-    output: {
-      case: 's3',
-      value: new S3Upload({
-        accessKey,
-        secret,
-        bucket,
-        region,
-        endpoint: endpoint || undefined,
-        forcePathStyle: Boolean(endpoint),
-      }),
-    },
+    output: { case: 's3', value: new S3Upload({ accessKey, secret, bucket, region, endpoint: endpoint || undefined, forcePathStyle: Boolean(endpoint) }) },
   });
 }
 
@@ -49,13 +39,18 @@ async function authorize(request: Request, roomName: string, requireHost = false
   return { user, host };
 }
 
+function jsonTime(value: unknown) {
+  if (value === null || value === undefined) return null;
+  return typeof value === 'bigint' ? value.toString() : String(value);
+}
+
 export async function GET(request: Request) {
   const roomName = new URL(request.url).searchParams.get('room') ?? '';
   const auth = await authorize(request, roomName, false);
   if ('error' in auth) return auth.error;
   try {
     const items = await liveKitApi().egress.listEgress({ roomName });
-    const recordings = items.map(item => ({ egressId: item.egressId, status: item.status, startedAt: item.startedAt, endedAt: item.endedAt }));
+    const recordings = items.map(item => ({ egressId: item.egressId, status: Number(item.status), startedAt: jsonTime(item.startedAt), endedAt: jsonTime(item.endedAt) }));
     return NextResponse.json({ roomName, recordings, recording: recordings.some(item => !item.endedAt) });
   } catch {
     return NextResponse.json({ roomName, recordings: [], recording: false, configured: false });
@@ -69,9 +64,8 @@ export async function POST(request: Request) {
   if ('error' in auth) return auth.error;
   if (body.consent !== true) return NextResponse.json({ error: 'recording_consent_required' }, { status: 400 });
   try {
-    const output = recordingOutput(roomName);
-    const info = await liveKitApi().egress.startRoomCompositeEgress(roomName, { file: output }, { layout: 'grid' });
-    return NextResponse.json({ recording: true, egressId: info.egressId, status: info.status }, { status: 201 });
+    const info = await liveKitApi().egress.startRoomCompositeEgress(roomName, { file: recordingOutput(roomName) }, { layout: 'grid' });
+    return NextResponse.json({ recording: true, egressId: info.egressId, status: Number(info.status) }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'recording_unavailable';
     return NextResponse.json({ error: message }, { status: 503 });
@@ -87,7 +81,7 @@ export async function DELETE(request: Request) {
   if (!egressId) return NextResponse.json({ error: 'missing_egress_id' }, { status: 400 });
   try {
     const info = await liveKitApi().egress.stopEgress(egressId);
-    return NextResponse.json({ recording: false, egressId: info.egressId, status: info.status });
+    return NextResponse.json({ recording: false, egressId: info.egressId, status: Number(info.status) });
   } catch {
     return NextResponse.json({ error: 'recording_stop_failed' }, { status: 503 });
   }
