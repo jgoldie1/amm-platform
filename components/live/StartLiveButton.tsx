@@ -16,7 +16,7 @@ export default function StartLiveButton() {
   async function start() {
     setStarting(true);
     try {
-      const { data: { session } } } = await getBrowserSupabase().auth.getSession();
+      const { data: { session } } = await getBrowserSupabase().auth.getSession();
       if (!session?.access_token) throw new Error('Sign in before going LIVE.');
       const response = await fetch('/api/live/rooms', {
         method: 'POST',
