@@ -42,6 +42,18 @@ Multilingual support is part of the same acceptance gate. User-facing modules mu
 
 New modules may not be marked complete solely because the default mouse/touch English path works.
 
+## Private Founder Archive / HoloGPT rule
+
+The Founder Archive is a private owner-scoped history store for project conversations, code, designs, business notes, white papers, media references, CAD/manufacturing artifacts and other founder-approved records. It is not a public knowledge base.
+
+Every Founder Archive record and chunk must carry an owner_id and be protected by database row-level security requiring auth.uid() = owner_id. Application-layer access guards must enforce the same condition. HoloGPT/Stubbs AI may retrieve founder archive context only for the authenticated matching owner and only for the active request. Retrieval does not grant permission to share, export, delete, transfer ownership, or change access controls.
+
+Founder Archive ingestion must preserve provenance where available, including source type, source reference, original creation date, checksum/content hash, capture time, tags, related Legacy Design Vault IDs, and searchable chunks. Source material must not be rewritten and presented as original evidence; summaries and derived memories remain distinguishable from source records.
+
+Exports, deletions, sharing, ownership changes, or permission changes require an explicit authenticated owner action and must be auditable. Service-role ingestion may be used only by trusted server-side jobs and may not create a public access path.
+
+The application must never claim the complete historical ChatGPT archive has been ingested unless an actual export/source set has been processed and reconciled. Missing conversations remain missing until a source is supplied or recovered.
+
 ## Legacy Design Recovery Vault rule
 
 The Legacy Design Recovery Vault is the durable registry for recovered TRYAMM inventions that originated in prior conversations, files, prototypes, diagrams, code, CAD, white papers, or other project artifacts. Recovered concepts must not be silently re-created with guessed specifications when an authoritative legacy source has not been found.
@@ -62,10 +74,11 @@ A mobility mission is not production-ready merely because planning succeeds. Rea
 
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, or legacy-recovery process may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, founder-archive retrieval process, or legacy-recovery process may bypass:
 
 - authentication or authorization
 - Supabase RLS
+- owner-only Founder Archive access
 - regulated-service credential verification
 - ComplianceOS decisions
 - payment and payout controls
@@ -74,15 +87,15 @@ No model, cache, latency optimizer, memory component, hierarchy agent, sensory a
 - deterministic physical-control boundaries
 - evidence requirements for legacy-design stage advancement
 
-When a required control is unavailable, high-impact, regulated, physical-motion, and production-candidate actions fail closed.
+When a required control is unavailable, high-impact, regulated, physical-motion, founder-private, and production-candidate actions fail closed.
 
 ## Memory rule
 
-Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, mobility telemetry/mission state, legacy-design provenance/stage state, and other transactional state; memory stores context and verified summaries, not a replacement ledger or invention provenance database.
+Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, mobility telemetry/mission state, founder archive source records, legacy-design provenance/stage state, and other transactional state; memory stores context and verified summaries, not a replacement ledger, archive, or invention provenance database.
 
 ## Speed rule
 
-Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, physical-control-critical, or evidence/provenance-critical work.
+Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, physical-control-critical, privacy-critical, or evidence/provenance-critical work.
 
 ## Benchmark & Proof rule
 
@@ -96,4 +109,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment. Legacy physical inventions additionally require source verification, reconstructed specifications, digital-twin/simulation evidence, prototype evidence, independent verification, and the applicable production safety/regulatory gates before being represented as production candidates.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment. Legacy physical inventions additionally require source verification, reconstructed specifications, digital-twin/simulation evidence, prototype evidence, independent verification, and the applicable production safety/regulatory gates before being represented as production candidates. Founder Archive/HoloGPT integration additionally requires authenticated owner identity, RLS verification, retrieval-isolation tests, audit logging for privileged mutations, and successful ingestion/reconciliation tests before any claim of complete historical coverage.
