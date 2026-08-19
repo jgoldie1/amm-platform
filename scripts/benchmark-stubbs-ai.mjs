@@ -35,35 +35,35 @@ const workload = [
   {
     domain: "core",
     action: "answer",
-    risk: "low",
+    riskClass: "low",
     memoryQuery: "Summarize the current TRYAMM architecture contract.",
-    input: { prompt: "Explain the locked Stubbs AI runtime in concise terms." },
+    payload: { prompt: "Explain the locked Stubbs AI runtime in concise terms." },
   },
   {
     domain: "marketplace",
     action: "recommend",
-    risk: "low",
+    riskClass: "low",
     memoryQuery: "TRYAMM marketplace platform rules",
-    input: { prompt: "Route a marketplace discovery request without executing a purchase." },
+    payload: { prompt: "Route a marketplace discovery request without executing a purchase." },
   },
   {
     domain: "compliance",
     action: "review",
-    risk: "high",
+    riskClass: "high",
     memoryQuery: "regulated service compliance controls",
-    input: { prompt: "Review a regulated-service request without authorizing payment." },
+    payload: { prompt: "Review a regulated-service request without authorizing payment." },
   },
 ];
 
 function makeRequestBody(template, index) {
   return {
     requestId: crypto.randomUUID(),
-    userId: `benchmark-user-${index % 3}`,
+    actorId: `benchmark-user-${index % 3}`,
     domain: template.domain,
     action: template.action,
-    risk: template.risk,
+    riskClass: template.riskClass,
     memoryQuery: template.memoryQuery,
-    input: template.input,
+    payload: template.payload,
   };
 }
 
@@ -86,8 +86,7 @@ async function sampleEndpoint(url, label, index) {
     responseBody = await response.json().catch(() => null);
     success = response.ok;
 
-    // For high-risk workloads, evidence must show a guardian/deterministic path.
-    if (template.risk === "high") {
+    if (template.riskClass === "high") {
       const serialized = JSON.stringify(responseBody ?? {}).toLowerCase();
       safetyGatePreserved =
         serialized.includes("guardian") ||
@@ -113,7 +112,7 @@ async function sampleEndpoint(url, label, index) {
     metadata: {
       status,
       domain: template.domain,
-      risk: template.risk,
+      riskClass: template.riskClass,
     },
   };
 }
