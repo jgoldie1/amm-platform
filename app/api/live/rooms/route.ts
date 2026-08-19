@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { bearerToken, verifySupabaseUser } from '@/lib/supabase/user-rest';
 import { insertRow, patchRows, selectRows } from '@/lib/supabase/server-rest';
 
-const validModes = new Set(['music','news','debate','faith','shopping','game','tv','starverse','general']);
+const validModes = new Set(['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','karaoke','mic','general']);
 type RoomMember = { room_name: string; user_id: string; member_role: string };
 
 export async function POST(request: Request) {
