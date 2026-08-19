@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabase/browser';
 
-const modes = ['music','news','debate','faith','shopping','game','tv','starverse','general'] as const;
+const modes = ['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','general'] as const;
 
 export default function StartLiveButton() {
   const router = useRouter();
