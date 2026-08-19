@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "benchmark:stubbs-ai": "node scripts/benchmark-stubbs-ai.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
