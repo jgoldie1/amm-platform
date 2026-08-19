@@ -11,6 +11,7 @@ export type TryammDomain =
   | "property"
   | "logistics"
   | "mobility"
+  | "forge"
   | "worlds"
   | "spaceos"
   | "starverse"
