@@ -7,36 +7,35 @@ This file is the development contract for TRYAMM application modules.
 All non-static product modules must integrate through the shared Stubbs AI runtime contract:
 
 1. Stubbs AI Gateway
-2. Hierarchy AGI executive/critic/guardian/specialist routing
+2. Hierarchy AGI routing
 3. Advanced model/router layer
 4. Googolplex Memory retrieval
-5. Five-Senses multimodal perception when physical/media inputs are relevant
-6. Stubbs AI introspective self-model for runtime capabilities, limits, goals, and health
+5. Five-Senses perception fusion when real/supported inputs exist
+6. Stubbs AI self-model / runtime introspection
 7. Quantum Speed scheduling
 8. Quantum Lag Buster latency protection
 9. Guardian risk gate
 10. Domain-specific deterministic service
 11. Evidence/audit verification
 12. Googolplex Memory state update
-13. Benchmark & Proof telemetry for measurable performance-critical changes
 
 Static assets, build tooling, and public health checks are exempt from the runtime path.
 
 ## Hierarchy AGI rule
 
-Stubbs AI uses a hierarchy: executive proposes and routes, critic challenges, guardian evaluates risk, specialists reason within their domains, and deterministic services perform authoritative side effects. No hierarchy node may grant itself permissions or bypass a verifier.
+The executive layer may plan and route; critic and guardian layers may challenge and constrain; specialists may reason within domains; deterministic workers/services own real side effects. Hierarchy agents do not gain permission merely by being higher in the hierarchy.
 
 ## Self-model rule
 
-"Self-awareness" in the runtime means machine introspection/self-modeling: Stubbs AI may represent its configured identity, capabilities, limitations, goals, active domains, dependency health, and uncertainty. This is not evidence or a claim of consciousness, sentience, emotions, or biological awareness.
+Stubbs AI may maintain a machine-readable model of its configured identity, capabilities, limits, goals, health, and active domains. This is introspection for reliable orchestration and is not evidence of consciousness, sentience, biological self-awareness, or subjective experience.
 
 ## Five-Senses rule
 
-The Five-Senses AGI interface supports vision, hearing, touch, smell, and taste as multimodal sensor channels when compatible hardware/data sources exist. Simulated or inferred sensory data must be labeled and may not be represented as a physical measurement. Missing senses must remain explicitly unavailable rather than hallucinated.
+Vision, hearing, touch, smell, and taste are treated as perception channels only when supported by actual media, device, sensor, or explicitly simulated inputs. Simulated channels must be labeled and may not be represented as physical measurements.
 
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, agent, sensory adapter, hierarchy node, or self-model may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, or self-model may bypass:
 
 - authentication or authorization
 - Supabase RLS
@@ -58,7 +57,7 @@ Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurr
 
 ## Benchmark & Proof rule
 
-Performance claims must be measured. For meaningful runtime changes, collect baseline and optimized samples and compare at minimum P50/P95/P99 latency, memory retrieval time, context/token volume when applicable, success/error rate, throughput when applicable, cache hit rate, estimated model cost when available, and safety-gate preservation. Illustrative or simulated numbers must be labeled and may not be published as measured results.
+Performance claims about Stubbs AI, Googolplex Memory, Quantum Speed Engine, Quantum Lag Buster, Hierarchy AGI, model routing, or related runtime improvements must be backed by measured evidence. The controlled benchmark runner must use the same workload definition for baseline and optimized targets. Persisted proof may include P50/P95/P99 latency, memory retrieval time, tokens/context, cost estimates, success rate, cache hit rate, throughput, and safety-gate preservation when those values are actually instrumented. Missing measurements stay missing; they must not be filled with invented values. Visual concept art is illustrative and never counts as benchmark evidence.
 
 ## Domain routing
 
@@ -66,4 +65,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, benchmark evidence where performance is material, and deployed-environment verification appropriate to that module.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, and deployed-environment verification appropriate to that module. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made.
