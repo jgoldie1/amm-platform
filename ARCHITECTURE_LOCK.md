@@ -42,6 +42,16 @@ Multilingual support is part of the same acceptance gate. User-facing modules mu
 
 New modules may not be marked complete solely because the default mouse/touch English path works.
 
+## Legacy Design Recovery Vault rule
+
+The Legacy Design Recovery Vault is the durable registry for recovered TRYAMM inventions that originated in prior conversations, files, prototypes, diagrams, code, CAD, white papers, or other project artifacts. Recovered concepts must not be silently re-created with guessed specifications when an authoritative legacy source has not been found.
+
+Each invention record must preserve the invention name and aliases, domain, recovered facts, unresolved specifications, dependencies, safety requirements, implementation status, source artifacts, revisions/checksums where available, recovery confidence, and recovery stage. Supported source artifacts include conversations, code, diagrams, images, CAD, STL, STEP, BOMs, tests, white papers, and other verifiable project evidence.
+
+The required recovery lifecycle is: Recovered -> Source Verified -> Specification Reconstructed -> Digital Twin -> Simulation Tested -> Prototype -> Independently Verified -> Production Candidate. Progression is evidence-gated and sequential. A design may be demoted at any time when new evidence invalidates an earlier assumption.
+
+Legacy records are not proof that a physical product works. Unknown propulsion, materials, performance, safety, manufacturing, or regulatory specifications remain unknown until recovered or independently established. The Vault is a provenance and continuity system, not a substitute for engineering validation, patent analysis, certification, or physical testing.
+
 ## MobilityOS and robotics rule
 
 MobilityOS covers electric vehicles, delivery drones, passenger/cargo eVTOL or flying-vehicle concepts, ground and warehouse robots, agricultural robots, marine vehicles, and SpaceOS rovers. Stubbs AI may plan, dispatch, coordinate, translate, remember, and optimize missions, but it may not directly generate or execute steering, throttle, braking, rotor, flight-control, or actuator commands.
@@ -52,7 +62,7 @@ A mobility mission is not production-ready merely because planning succeeds. Rea
 
 ## Non-bypassable controls
 
-No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, or mobility planner may bypass:
+No model, cache, latency optimizer, memory component, hierarchy agent, sensory adapter, self-model, translation layer, accessibility adapter, mobility planner, or legacy-recovery process may bypass:
 
 - authentication or authorization
 - Supabase RLS
@@ -62,16 +72,17 @@ No model, cache, latency optimizer, memory component, hierarchy agent, sensory a
 - audit persistence
 - explicit safety gates
 - deterministic physical-control boundaries
+- evidence requirements for legacy-design stage advancement
 
-When a required control is unavailable, high-impact, regulated, and physical-motion actions fail closed.
+When a required control is unavailable, high-impact, regulated, physical-motion, and production-candidate actions fail closed.
 
 ## Memory rule
 
-Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, mobility telemetry/mission state, and other transactional state; memory stores context and verified summaries, not a replacement ledger.
+Googolplex Memory is the shared application memory architecture. New modules must not invent isolated persistence for conversational/project memory when the information belongs in the shared memory layer. Domain databases remain the source of truth for financial, compliance, credential, inventory, booking, mobility telemetry/mission state, legacy-design provenance/stage state, and other transactional state; memory stores context and verified summaries, not a replacement ledger or invention provenance database.
 
 ## Speed rule
 
-Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, or physical-control-critical work.
+Quantum Speed Engine and Quantum Lag Buster optimize routing, retrieval, concurrency, batching, caching, and context size. Performance optimization must degrade optional work before it degrades safety-critical, accessibility-critical, physical-control-critical, or evidence/provenance-critical work.
 
 ## Benchmark & Proof rule
 
@@ -85,4 +96,4 @@ New domains must register with Stubbs AI rather than creating unrelated AI entry
 
 ## Completion gate
 
-A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment.
+A module is not production-ready until it has authentication, authorization/RLS, persistence, tests, observability, secrets/configuration, failure handling, accessibility and multilingual acceptance appropriate to the module, and deployed-environment verification. Performance-sensitive modules additionally require a measured proof run when optimization claims will be made. Physical mobility/robotics modules additionally require deterministic-controller validation, hardware/sensor validation, emergency-stop validation, and the applicable real-world regulatory/operational approvals before physical deployment. Legacy physical inventions additionally require source verification, reconstructed specifications, digital-twin/simulation evidence, prototype evidence, independent verification, and the applicable production safety/regulatory gates before being represented as production candidates.
