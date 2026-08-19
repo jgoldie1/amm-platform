@@ -1,9 +1,34 @@
+import type { Metadata } from 'next';
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { productNav, productSections } from "@/lib/product-sections";
 
-export default function ProductSectionPage({ params }: { params: { section: string } }) {
-  const section = productSections[params.section];
+type PageProps = { params: Promise<{ section: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { section: slug } = await params;
+  const section = productSections[slug];
+  if (!section) return {};
+
+  const indexable = !['auth', 'wallet', 'notifications', 'settings', 'my-vault', 'checkout'].includes(slug);
+  return {
+    title: section.title,
+    description: section.description,
+    alternates: { canonical: `/${slug}` },
+    openGraph: {
+      title: `${section.title} | TRYAMM`,
+      description: section.description,
+      url: `/${slug}`,
+      type: 'website',
+      images: ['/icons/tryamm-judah-icon-1024.png'],
+    },
+    robots: { index: indexable, follow: indexable },
+  };
+}
+
+export default async function ProductSectionPage({ params }: PageProps) {
+  const { section: slug } = await params;
+  const section = productSections[slug];
   if (!section) notFound();
 
   return (
@@ -11,9 +36,9 @@ export default function ProductSectionPage({ params }: { params: { section: stri
       <header className="product-header">
         <Link href="/" className="brand-link">TRYAMM</Link>
         <nav aria-label="Product navigation" className="product-nav">
-          {productNav.map((slug) => (
-            <Link key={slug} href={`/${slug}`} aria-current={slug === section.slug ? "page" : undefined}>
-              {productSections[slug].title.replace("TRYAMM ", "")}
+          {productNav.map((navSlug) => (
+            <Link key={navSlug} href={`/${navSlug}`} aria-current={navSlug === section.slug ? "page" : undefined}>
+              {productSections[navSlug].title.replace("TRYAMM ", "")}
             </Link>
           ))}
         </nav>
