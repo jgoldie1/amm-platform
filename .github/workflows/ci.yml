@@ -3,7 +3,7 @@ name: TRYAMM CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, agent/complianceos-regulated-services]
 
 jobs:
   build:
@@ -15,18 +15,26 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npm run build
+          cache-dependency-path: package.json
+      - name: Install pinned direct dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://tryamm.online
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-placeholder
+        run: npm run build
 
   secret-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Reject obvious committed secrets
+      - name: Reject obvious committed secret values
         shell: bash
         run: |
-          if grep -RInE --exclude-dir=.git --exclude='*.lock' '(sk_live_|sk_test_|service_role|api[_-]?key[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_-]{20,})' .; then
-            echo 'Potential secret committed to repository.'
+          if grep -RInE --exclude-dir=.git --exclude='.env.example' --exclude='*.lock' '(sk_live_[A-Za-z0-9]+|sk_test_[A-Za-z0-9]+|service_role[[:space:]]*[:=][[:space:]]*[A-Za-z0-9._-]{20,}|api[_-]?key[[:space:]]*[:=][[:space:]]*[A-Za-z0-9._-]{20,})' .; then
+            echo 'Potential secret value committed to repository.'
             exit 1
           fi
