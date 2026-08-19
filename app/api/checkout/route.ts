@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { bearerToken, userRest, verifySupabaseUser } from '@/lib/supabase/user-rest';
+import { patchRows } from '@/lib/supabase/server-rest';
 import { createCheckout } from '@/lib/integrations/payments';
 
 export async function POST(request: Request) {
@@ -24,9 +25,9 @@ export async function POST(request: Request) {
   if(!order) return NextResponse.json({error:'order_creation_failed'},{status:500});
   try{
     const origin=new URL(request.url).origin;
-    const checkout=await createCheckout({orderId:order.id,customerId:user.id,amountMinor:Math.round(amount*100),currency:String(product.currency??'USD').toLowerCase(),applicationFeeMinor:Math.round(ammCut*100),successUrl:`${origin}/wallet?checkout=success`,cancelUrl:`${origin}/marketplace?checkout=cancelled`});
-    await userRest(token,`orders?id=eq.${encodeURIComponent(order.id)}&buyer_id=eq.${encodeURIComponent(user.id)}`,{method:'PATCH',prefer:'return=representation',body:{stripe_checkout_session_id:checkout.externalId}}).catch(()=>undefined);
-    return NextResponse.json({order,checkout});
+    const checkout=await createCheckout({orderId:order.id,customerId:user.id,productName:String(product.name??'TRYAMM purchase'),amountMinor:Math.round(amount*100),currency:String(product.currency??'USD').toLowerCase(),applicationFeeMinor:Math.round(ammCut*100),successUrl:`${origin}/wallet?checkout=success`,cancelUrl:`${origin}/marketplace?checkout=cancelled`});
+    await patchRows('orders',`id=eq.${encodeURIComponent(order.id)}&buyer_id=eq.${encodeURIComponent(user.id)}`,{stripe_checkout_session_id:checkout.externalId});
+    return NextResponse.json({order:{...order,stripe_checkout_session_id:checkout.externalId},checkout});
   }catch(error){
     return NextResponse.json({order,error:'payment_provider_unavailable',detail:error instanceof Error?error.message:'checkout unavailable'},{status:503});
   }
