@@ -15,6 +15,7 @@ const domainRoutes: Record<StubbsAIRequest["domain"], string> = {
   marketplace: "tryamm-marketplace",
   property: "propertyverse",
   logistics: "dispatch-logistics",
+  mobility: "mobilityos",
   worlds: "living-worlds",
   spaceos: "spaceos",
   starverse: "starverse",
@@ -35,7 +36,7 @@ export async function orchestrateStubbsAI(
   const path = hierarchyPath(specialist);
   const perception = fuseFiveSenseObservations(request.senseObservations ?? []);
   const selfModel = buildSelfModel({
-    runtimeVersion: "0.2.0",
+    runtimeVersion: "0.3.0",
     activeDomains: Object.keys(domainRoutes),
     capabilities: [
       "advanced model routing",
@@ -45,10 +46,12 @@ export async function orchestrateStubbsAI(
       "Hierarchy AGI routing",
       "multimodal five-senses perception contract",
       "Guardian risk evaluation",
+      "MobilityOS mission planning and fleet orchestration",
     ],
     limitations: [
       "Physical senses require actual connected sensors or media sources.",
-      "Deterministic services remain authoritative for regulated and financial side effects.",
+      "Deterministic services remain authoritative for regulated, financial, and physical vehicle side effects.",
+      "Stubbs AI may plan mobility missions but may not directly emit steering, throttle, braking, rotor, or actuator commands.",
     ],
     currentGoals: [
       `route ${request.domain} request safely`,
