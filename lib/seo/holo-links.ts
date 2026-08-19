@@ -3,7 +3,7 @@ export interface HoloCrawlLink {
   href: string;
   title: string;
   description: string;
-  category: "create" | "watch" | "play" | "shop" | "services" | "ai";
+  category: "create" | "watch" | "play" | "shop" | "services" | "ai" | "network";
   indexable: boolean;
 }
 
@@ -17,6 +17,7 @@ export const holoCrawlLinks: HoloCrawlLink[] = [
   { slug:"marketplace", href:"/marketplace", title:"TRYAMM Marketplace", description:"Discover creator products, services, media unlocks and custom HoloForge assets.", category:"shop", indexable:true },
   { slug:"services", href:"/services", title:"TRYAMM Services", description:"Find and book providers with Stubbs AI discovery and compliance checks when required.", category:"services", indexable:true },
   { slug:"creator", href:"/creator", title:"TRYAMM Creator Platform", description:"Build a creator profile, go LIVE, publish media, sell and grow an audience.", category:"create", indexable:true },
+  { slug:"holonet", href:"/holonet", title:"TRYAMM HoloNet", description:"TRYAMM's service network connecting Holo Search, Stubbs AI, media, games, commerce and realtime experiences.", category:"network", indexable:true },
 ];
 
 export const publicHoloCrawlLinks = holoCrawlLinks.filter((link) => link.indexable);
