@@ -30,7 +30,7 @@ alter table public.holo_gift_catalog enable row level security;
 drop policy if exists holo_gift_catalog_read on public.holo_gift_catalog;
 create policy holo_gift_catalog_read on public.holo_gift_catalog for select to anon,authenticated using (active=true);
 insert into public.holo_gift_catalog(gift_type,display_name,token_amount,usd_value,animation_key)
-values ('heart','Holo Heart',10,0.10,'holo-heart-v2'),('star','Holo Star',50,0.50,'holo-star-v2'),('judah_crown','Judah Crown',250,2.50,'judah-crown-v2')
+values ('heart','Holo Heart',10,0.10,'gift/heart-holo-v2'),('star','Holo Star',50,0.50,'gift/star-holo-v2'),('judah-crown','Judah Crown',250,2.50,'gift/judah-crown-holo-v2')
 on conflict (gift_type) do update set display_name=excluded.display_name,token_amount=excluded.token_amount,usd_value=excluded.usd_value,animation_key=excluded.animation_key,active=true;
 
 -- Client inserts are forbidden; all value movement goes through the transaction function below.
