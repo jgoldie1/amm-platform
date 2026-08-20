@@ -41,6 +41,10 @@ Initial destination families:
 - Neptune
 - Pluto/Kuiper Belt
 - solar-observation experiences
+- Pleiades/M45 stellar-cluster experience
+- North-Star/Polaris navigation experience
+- constellation and deep-sky experiences
+- Sheep Planet, a creator-authored fictional pastoral/celestial world
 - expandable deep-space destinations
 - present/future Chicago Twin Worlds
 - ancient Jerusalem historical/reconstructed world
@@ -51,6 +55,18 @@ Initial destination families:
 Briefing → choose avatar/crew/vehicle → equipment and accessibility configuration → launch/cinematic or portal handoff → orbital/landing sequence → Mars world instance → mission objectives → rover/robot/drone support → science/exploration/build/rescue missions → LIVE/team communication → checkpoint/Echo → rewards/creator assets → return or continue settlement storyline.
 
 Mission templates can use the recovered MissionSystem pattern: objective ID, world/coordinates, status, requirements, reward, completion evidence and checkpoint effects. Scientific missions must distinguish sourced/model-based facts from fictional gameplay.
+
+## Omniverse After Dark time worlds
+Omniverse After Dark may use the same Time Machine, Quantum Leap, avatar, LIVE, creator-economy, haptic and persistent-world infrastructure for consenting adults in eligible jurisdictions. Mature relationship/intimacy experiences remain age-gated, consent-driven and non-public by default, with recording/sharing requiring separate explicit consent. The system must not permit minors, coercive experiences, non-consensual likeness use, hidden recording, or a mature-world entitlement to bypass payment-provider, app-store, territory, moderation, privacy or safety restrictions.
+
+Adult-world state is compartmentalized from general discovery. Entering an eligible mature world requires adult eligibility + territory/provider policy + account security + world entitlement + explicit session consent. Haptic/device permissions are scoped per session, have an emergency stop, expire automatically and never grant wallet, identity, memory or administrative access.
+
+Time travel in After Dark is fictional/simulated world travel. It can place adult avatars in creator-authored fantasy/future settings, but historical/religious educational worlds remain separately governed and do not inherit sexualized gameplay merely because the same Time Machine runtime is used.
+
+## Sheep Planet / North-Star celestial lane
+Sheep Planet is a creator-authored fictional world connected to the stellar graph rather than presented as a discovered astronomical planet. It can use pastoral landscapes, celestial shepherd themes, flocks, settlements, missions, music, creator stages and faith/storytelling experiences.
+
+The North-Star/Polaris experience is an astronomy/navigation destination. Constellations are rendered from Earth-view patterns and can expand into 3D stellar positions; the app must not imply that constellation stars are physically adjacent. Creator mythology/faith/story layers are clearly separated from observational astronomy.
 
 ## Historical Time Worlds
 Historical experiences are educational/reconstructed simulations with source/provenance metadata and visible uncertainty labels. Do not present AI-generated reconstruction as direct historical footage.
@@ -77,7 +93,7 @@ Every transition can leave an Echo containing authorized world-state deltas: pla
 Echoes support historical education, what-if simulations, family-memory experiences, sports/concert replay worlds, training and alternate-future storytelling. Users can revisit or branch a simulated Echo without rewriting real history.
 
 ## Planetary holographic command table
-The Holo5DX/Twin Earth concept can render a tabletop planetary system with selectable layers: terrain, weather/model data, settlements, missions, creator events, LIVE broadcasters, transport routes, educational markers and world portals. Selecting a destination can expand it from tabletop hologram into full-screen/AR/VR/MR world entry.
+The Holo5DX/Twin Earth concept can render a tabletop planetary/stellar system with selectable layers: terrain, astronomy data, weather/model data where relevant, settlements, missions, creator events, LIVE broadcasters, transport routes, educational markers and world portals. Selecting a destination can expand it from tabletop hologram into full-screen/AR/VR/MR world entry.
 
 ## Stubbs AI / Middleverse AI
 AI guide functions: mission briefing, navigation, translation, accessibility assistance, contextual education, NPC orchestration, dynamic quest generation, world summaries and transition status. AI-generated claims in historical/scientific worlds require provenance/uncertainty handling and cannot silently overwrite curated source material.
@@ -104,4 +120,4 @@ Do not call the complete Time Worlds system GREEN until one vertical slice prove
 9. Panic Mode contains privileged operations without destroying the checkpoint;
 10. the same destination works in standard screen mode plus at least one spatial mode (AR or VR/MR).
 
-After that proof, Mars, Moon, historical worlds and additional planets reuse the same runtime rather than becoming separate applications.
+After that proof, Mars, Moon, historical worlds, Sheep Planet, stellar/constellation worlds and additional planets reuse the same runtime rather than becoming separate applications.
