@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   academyLessons,
   lessonsForTrack,
   type AcademyTrack,
 } from '@/lib/stubbs-ai/academy';
+import { createClient } from '@/lib/supabase/client';
 
 const trackLabels: Record<AcademyTrack, string> = {
   tryamm_onboarding: 'Learn TRYAMM',
@@ -26,12 +27,47 @@ export default function AcademyPage() {
   const [track, setTrack] = useState<AcademyTrack>(defaultTrack);
   const [completed, setCompleted] = useState<string[]>([]);
   const [question, setQuestion] = useState('');
+  const [signedIn, setSignedIn] = useState(false);
   const [coachMessage, setCoachMessage] = useState(
     'Choose a lesson. Stubbs AI will guide you step by step and keep education separate from real money actions.',
   );
 
   const lessons = useMemo(() => lessonsForTrack(track), [track]);
   const completedSet = useMemo(() => new Set(completed), [completed]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const supabase = createClient();
+
+    async function loadProgress() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      setSignedIn(Boolean(session?.user));
+      if (!session?.user) return;
+
+      const { data, error } = await supabase
+        .from('academy_progress')
+        .select('lesson_id')
+        .eq('user_id', session.user.id);
+
+      if (cancelled) return;
+      if (error) {
+        setCoachMessage('Academy is available, but saved progress could not be loaded. Verify migration 013 and RLS before release.');
+        return;
+      }
+      setCompleted((data ?? []).map((row) => row.lesson_id));
+    }
+
+    void loadProgress();
+    const { data: subscription } = supabase.auth.onAuthStateChange(() => {
+      void loadProgress();
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.subscription.unsubscribe();
+    };
+  }, []);
 
   function selectLesson(id: string) {
     const lesson = academyLessons.find((item) => item.id === id);
@@ -46,9 +82,26 @@ export default function AcademyPage() {
     );
   }
 
-  function markComplete(id: string) {
+  async function markComplete(id: string) {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user) {
+      setCoachMessage('Sign in to save Academy progress. You can still read and practice lessons without saving.');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('academy_progress')
+      .upsert({ user_id: session.user.id, lesson_id: id }, { onConflict: 'user_id,lesson_id' });
+
+    if (error) {
+      setCoachMessage('Progress was not saved. Verify the Academy migration/RLS before release.');
+      return;
+    }
+
     setCompleted((current) => (current.includes(id) ? current : [...current, id]));
-    setCoachMessage('Lesson checkpoint saved for this session. Next, choose another unlocked lesson.');
+    setCoachMessage('Lesson checkpoint saved. Next, choose another unlocked lesson.');
   }
 
   function askCoach() {
@@ -77,6 +130,7 @@ export default function AcademyPage() {
           simulated ETF baskets, Forex and market stress testing. Education and simulation stay separate from real payment,
           securities, crypto and leveraged-FX execution.
         </p>
+        <p><strong>Progress:</strong> {signedIn ? `${completed.length} lesson checkpoints saved` : 'sign in to save progress'}</p>
       </section>
 
       <section aria-label="Academy tracks" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 28 }}>
@@ -134,8 +188,8 @@ export default function AcademyPage() {
                   <button type="button" disabled={!unlocked} onClick={() => selectLesson(lesson.id)}>
                     {unlocked ? 'Start lesson' : 'Locked'}
                   </button>
-                  <button type="button" disabled={!unlocked || done} onClick={() => markComplete(lesson.id)}>
-                    {done ? 'Completed' : 'Mark checkpoint complete'}
+                  <button type="button" disabled={!unlocked || done} onClick={() => void markComplete(lesson.id)}>
+                    {done ? 'Completed' : 'Save checkpoint'}
                   </button>
                 </div>
               </article>
