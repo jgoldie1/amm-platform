@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { supabaseBrowser } from '@/lib/supabase/client';
 import {
   REALITY_LAB_STORAGE_KEY,
   realityLabRooms,
@@ -16,6 +17,13 @@ type SavedState = {
   highContrast: boolean;
 };
 
+type RemoteProgress = {
+  currentRoom: RealityLabRoomId;
+  completed: RealityLabRoomId[];
+  xp: number;
+  accessibility?: Partial<Pick<SavedState, 'reducedMotion' | 'oneHanded' | 'highContrast'>>;
+};
+
 const defaultState: SavedState = {
   currentRoom: 'welcome-hall',
   completed: [],
@@ -27,10 +35,13 @@ const defaultState: SavedState = {
 
 export default function RealityLabExperience() {
   const [state, setState] = useState<SavedState>(defaultState);
+  const [hydrated, setHydrated] = useState(false);
   const [panic, setPanic] = useState(false);
   const [message, setMessage] = useState('Checkpoint ready. Enter the Reality Lab.');
   const [gamepadConnected, setGamepadConnected] = useState(false);
+  const [remoteStatus, setRemoteStatus] = useState<'local' | 'syncing' | 'synced' | 'unavailable'>('local');
   const gamepadButtons = useRef<boolean[]>([]);
+  const remoteToken = useRef<string | null>(null);
 
   const currentIndex = Math.max(0, realityLabRooms.findIndex(room => room.id === state.currentRoom));
   const current = realityLabRooms[currentIndex];
@@ -42,12 +53,89 @@ export default function RealityLabExperience() {
       if (raw) setState({ ...defaultState, ...(JSON.parse(raw) as SavedState) });
     } catch {
       setMessage('Local checkpoint could not be restored; using a safe fresh state.');
+    } finally {
+      setHydrated(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(REALITY_LAB_STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+  }, [hydrated, state]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    let cancelled = false;
+
+    const loadRemote = async () => {
+      try {
+        setRemoteStatus('syncing');
+        const client = supabaseBrowser();
+        const { data } = await client.auth.getSession();
+        const token = data.session?.access_token ?? null;
+        remoteToken.current = token;
+        if (!token) {
+          if (!cancelled) setRemoteStatus('local');
+          return;
+        }
+
+        const response = await fetch('/api/reality-lab/progress', {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`Progress load failed: ${response.status}`);
+        const body = await response.json() as { progress: RemoteProgress | null };
+        if (body.progress && !cancelled) {
+          setState(prev => ({
+            ...prev,
+            currentRoom: body.progress!.currentRoom,
+            completed: body.progress!.completed,
+            xp: body.progress!.xp,
+            reducedMotion: body.progress!.accessibility?.reducedMotion ?? prev.reducedMotion,
+            oneHanded: body.progress!.accessibility?.oneHanded ?? prev.oneHanded,
+            highContrast: body.progress!.accessibility?.highContrast ?? prev.highContrast
+          }));
+        }
+        if (!cancelled) setRemoteStatus('synced');
+      } catch {
+        if (!cancelled) setRemoteStatus('unavailable');
+      }
+    };
+
+    void loadRemote();
+    return () => { cancelled = true; };
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !remoteToken.current) return;
+    const timer = window.setTimeout(async () => {
+      try {
+        setRemoteStatus('syncing');
+        const response = await fetch('/api/reality-lab/progress', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${remoteToken.current}`
+          },
+          body: JSON.stringify({
+            currentRoom: state.currentRoom,
+            completed: state.completed,
+            xp: state.xp,
+            accessibility: {
+              reducedMotion: state.reducedMotion,
+              oneHanded: state.oneHanded,
+              highContrast: state.highContrast
+            }
+          })
+        });
+        if (!response.ok) throw new Error(`Progress save failed: ${response.status}`);
+        setRemoteStatus('synced');
+      } catch {
+        setRemoteStatus('unavailable');
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [hydrated, state]);
 
   const moveTo = useCallback((index: number) => {
     const bounded = Math.min(realityLabRooms.length - 1, Math.max(0, index));
@@ -133,7 +221,7 @@ export default function RealityLabExperience() {
       }}
     >
       <strong>{index + 1}. {room.name}</strong><br />
-      <span>{state.completed.includes(room.id) ? 'GREEN interaction' : 'Not yet proven'}</span>
+      <span>{state.completed.includes(room.id) ? 'Interaction recorded' : 'Not yet completed'}</span>
     </button>
   )), [moveTo, state.completed, state.currentRoom]);
 
@@ -159,7 +247,7 @@ export default function RealityLabExperience() {
       </div>
 
       <p aria-live="polite"><strong>{message}</strong></p>
-      <p>Progress {progress}% • XP {state.xp} • Gamepad {gamepadConnected ? 'connected' : 'not detected'}</p>
+      <p>Progress {progress}% • XP {state.xp} • Gamepad {gamepadConnected ? 'connected' : 'not detected'} • Checkpoint {remoteStatus}</p>
       <progress max={100} value={progress} style={{ width: '100%', minHeight: 18 }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10, marginTop: 20 }}>
@@ -196,7 +284,7 @@ export default function RealityLabExperience() {
 
       {completedAll && (
         <div style={{ marginTop: 20, padding: 18, border: '2px solid currentColor', borderRadius: 16 }}>
-          <strong>Local interaction loop complete.</strong> This does not mark District 01 GREEN by itself; authoritative multiplayer, Supabase save/rejoin, mobile/XR benchmarks, commerce isolation and deployed evidence still require external proof.
+          <strong>Interaction loop complete.</strong> This does not mark District 01 GREEN by itself; authoritative multiplayer, Supabase save/rejoin, mobile/XR benchmarks, commerce isolation and deployed evidence still require real proof.
         </div>
       )}
     </section>
