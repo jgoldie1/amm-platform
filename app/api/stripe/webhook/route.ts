@@ -12,8 +12,13 @@ function verifySignature(raw:string,header:string,secret:string){
   const age=Math.abs(Date.now()/1000-Number(timestamp));
   if(!Number.isFinite(age)||age>300) return false;
   const expected=createHmac('sha256',secret).update(`${timestamp}.${raw}`,'utf8').digest('hex');
+  const encoder = new TextEncoder();
+  const expectedBytes = encoder.encode(expected);
   return signatures.some(sig=>{
-    try{const a=Buffer.from(expected,'hex'),b=Buffer.from(sig,'hex');return a.length===b.length&&timingSafeEqual(a,b);}catch{return false;}
+    try{
+      const signatureBytes = encoder.encode(sig);
+      return expectedBytes.length===signatureBytes.length && timingSafeEqual(expectedBytes, signatureBytes);
+    }catch{return false;}
   });
 }
 
