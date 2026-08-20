@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/server';
-import { realityLabRooms } from '@/lib/reality-lab';
+import { realityLabRooms, type RealityLabRoomId } from '@/lib/reality-lab';
 
-const RoomIds = realityLabRooms.map(room => room.id) as [string, ...string[]];
+const RoomIds = realityLabRooms.map(room => room.id) as [RealityLabRoomId, ...RealityLabRoomId[]];
+const RoomIdSchema = z.enum(RoomIds);
 const ProgressBody = z.object({
-  currentRoom: z.enum(RoomIds),
-  completed: z.array(z.enum(RoomIds)).max(realityLabRooms.length),
+  currentRoom: RoomIdSchema,
+  completed: z.array(RoomIdSchema).max(realityLabRooms.length),
   xp: z.number().int().min(0).max(1000000),
   accessibility: z.object({
     reducedMotion: z.boolean().default(false),
@@ -51,8 +52,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const roomXp = new Map(realityLabRooms.map(room => [room.id, room.xp]));
-  const uniqueCompleted = [...new Set(parsed.data.completed)];
+  const roomXp = new Map<RealityLabRoomId, number>(realityLabRooms.map(room => [room.id, room.xp]));
+  const uniqueCompleted = [...new Set<RealityLabRoomId>(parsed.data.completed)];
   const maxEarnedXp = uniqueCompleted.reduce((total, roomId) => total + (roomXp.get(roomId) ?? 0), 0);
 
   if (parsed.data.xp > maxEarnedXp) {
