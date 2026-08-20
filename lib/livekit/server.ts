@@ -6,6 +6,14 @@ function required(name: 'LIVEKIT_URL'|'LIVEKIT_API_KEY'|'LIVEKIT_API_SECRET') {
   return value;
 }
 
+function apiClient() {
+  return new LiveKitAPI({
+    host: required('LIVEKIT_URL').replace(/^wss:/, 'https:'),
+    apiKey: required('LIVEKIT_API_KEY'),
+    secret: required('LIVEKIT_API_SECRET'),
+  });
+}
+
 export async function mintLiveKitToken(input: {
   roomName: string;
   identity: string;
@@ -18,7 +26,7 @@ export async function mintLiveKitToken(input: {
   const at = new AccessToken(apiKey, apiSecret, {
     identity: input.identity,
     name: input.displayName ?? input.identity,
-    ttl: '2h',
+    ttl: '15m',
   });
   at.addGrant({
     roomJoin: true,
@@ -35,11 +43,7 @@ export async function mintLiveKitToken(input: {
 }
 
 export async function ensureLiveKitRoom(roomName: string, maxParticipants = 20) {
-  const api = new LiveKitAPI({
-    host: required('LIVEKIT_URL').replace(/^wss:/, 'https:'),
-    apiKey: required('LIVEKIT_API_KEY'),
-    secret: required('LIVEKIT_API_SECRET'),
-  });
+  const api = apiClient();
   try {
     const existing = await api.room.listRooms({ names: [roomName] });
     if (existing.length) return existing[0];
@@ -47,4 +51,15 @@ export async function ensureLiveKitRoom(roomName: string, maxParticipants = 20) 
     // create below; LiveKit also creates rooms lazily on first join.
   }
   return api.room.createRoom({ name: roomName, emptyTimeout: 300, maxParticipants });
+}
+
+export async function closeLiveKitRoom(roomName: string) {
+  const api = apiClient();
+  try {
+    await api.room.deleteRoom(roomName);
+  } catch (error) {
+    // Deleting an already-absent room should not leave stale TRYAMM authorization state.
+    const message = error instanceof Error ? error.message : String(error);
+    if (!/not.?found|404/i.test(message)) throw error;
+  }
 }
