@@ -5,6 +5,7 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 import { WorldRealtime, type Movement } from '@/lib/world-realtime';
 
 type RemotePlayer = { id: string; name: string; x: number; y: number };
+type BrowserDb = ReturnType<typeof supabaseBrowser>;
 
 export default function WorldsPage() {
   const [user, setUser] = useState<any>(null);
@@ -13,17 +14,31 @@ export default function WorldsPage() {
   const [joinCode, setJoinCode] = useState('');
   const [players, setPlayers] = useState<Record<string, RemotePlayer>>({});
   const [selfPos, setSelfPos] = useState({ x: 50, y: 50 });
+  const [backendReady, setBackendReady] = useState(false);
   const realtime = useRef<WorldRealtime | null>(null);
   const sequence = useRef(0);
-  const db = useRef(supabaseBrowser());
+  const db = useRef<BrowserDb | null>(null);
 
   useEffect(() => {
-    db.current.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    try {
+      db.current = supabaseBrowser();
+      setBackendReady(true);
+      void db.current.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    } catch {
+      db.current = null;
+      setBackendReady(false);
+    }
     return () => { void realtime.current?.disconnect(); };
   }, []);
 
   async function room(action: 'create' | 'join') {
-    const { data } = await db.current.auth.getSession();
+    const client = db.current;
+    if (!client) {
+      alert('Realtime backend is not configured in this environment.');
+      return;
+    }
+
+    const { data } = await client.auth.getSession();
     const token = data.session?.access_token;
     if (!token || !user) {
       alert('Sign in through Supabase Auth first.');
@@ -47,7 +62,7 @@ export default function WorldsPage() {
 
     setInstanceId(result.id);
     setJoinCode(result.join_code);
-    realtime.current = new WorldRealtime(db.current, result.id);
+    realtime.current = new WorldRealtime(client, result.id);
     await realtime.current.connect(
       user.id,
       name,
@@ -89,11 +104,12 @@ export default function WorldsPage() {
     <main style={{maxWidth:1180,margin:'0 auto',padding:24}}>
       <h1>Planetary Omniverse</h1>
       <p>Realtime shared-world Alpha using Supabase Broadcast + Presence architecture.</p>
+      {!backendReady && <p role="status"><strong>Backend not configured:</strong> UI is build-safe, but live room creation remains blocked until Supabase public environment variables are present.</p>}
       <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:16}}>
         <input value={name} onChange={event => setName(event.target.value)} placeholder="Display name" />
-        <button onClick={() => room('create')}>Create World Room</button>
+        <button disabled={!backendReady} onClick={() => room('create')}>Create World Room</button>
         <input value={joinCode} onChange={event => setJoinCode(event.target.value.toUpperCase())} placeholder="Join code" />
-        <button onClick={() => room('join')}>Join</button>
+        <button disabled={!backendReady} onClick={() => room('join')}>Join</button>
       </div>
       <div style={{position:'relative',height:500,border:'1px solid #334',borderRadius:18,overflow:'hidden'}}>
         <Player name={`${name} (you)`} x={selfPos.x} y={selfPos.y} />
