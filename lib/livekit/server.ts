@@ -45,7 +45,7 @@ export async function mintLiveKitToken(input: {
 export async function ensureLiveKitRoom(roomName: string, maxParticipants = 20) {
   const api = apiClient();
   try {
-    const existing = await api.room.listRooms({ names: [roomName] });
+    const existing = await api.room.listRooms([roomName]);
     if (existing.length) return existing[0];
   } catch {
     // create below; LiveKit also creates rooms lazily on first join.
