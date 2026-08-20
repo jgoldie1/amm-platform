@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { bearerToken, verifySupabaseUser } from '@/lib/supabase/user-rest';
-import { insertRow, patchRows, selectRows } from '@/lib/supabase/server-rest';
+import { deleteRows, insertRow, patchRows, selectRows } from '@/lib/supabase/server-rest';
+import { closeLiveKitRoom } from '@/lib/livekit/server';
 
 const validModes = new Set(['music','news','debate','faith','shopping','game','tv','starverse','showcase','talent','karaoke','mic','vocal-box','general']);
 type RoomMember = { room_name: string; user_id: string; member_role: string };
@@ -66,6 +67,12 @@ export async function DELETE(request: Request) {
   const host = members.find(member => member.member_role === 'host');
   if (!host || host.user_id !== user.id) return NextResponse.json({ error: 'host_permission_denied' }, { status: 403 });
 
+  // Close the media room first so connected clients are disconnected by LiveKit.
+  await closeLiveKitRoom(roomName);
+
+  // Remove TRYAMM authorization so old room links cannot mint fresh tokens.
+  await deleteRows('stream_room_members', `room_name=eq.${encodeURIComponent(roomName)}`);
+
   await patchRows('creator_live_presence', `user_id=eq.${user.id}`, {
     is_live: false,
     accepts_pk: false,
@@ -73,5 +80,5 @@ export async function DELETE(request: Request) {
     last_seen_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   });
-  return NextResponse.json({ ended: true, roomName });
+  return NextResponse.json({ ended: true, roomName, authorizationRevoked: true });
 }
