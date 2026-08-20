@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "verify:env": "node scripts/verify-env.mjs",
+    "smoke:core": "node scripts/smoke-core.mjs",
     "benchmark:stubbs-ai": "node scripts/benchmark-stubbs-ai.mjs"
   },
   "dependencies": {
