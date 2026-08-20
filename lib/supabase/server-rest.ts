@@ -35,3 +35,4 @@ export async function insertRow<T extends JsonRecord>(table: string,row: JsonRec
 }
 export async function selectRows<T>(table: string,query: string): Promise<T[]> { return request<T[]>(`${table}?${query}`, { method: "GET" }); }
 export async function patchRows<T>(table: string,query: string,values: JsonRecord): Promise<T[]> { return request<T[]>(`${table}?${query}`,{ method: "PATCH", body: JSON.stringify(values) },"return=representation"); }
+export async function deleteRows<T>(table: string,query: string): Promise<T[]> { return request<T[]>(`${table}?${query}`, { method: "DELETE" }, "return=representation"); }
