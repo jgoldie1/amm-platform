@@ -20,20 +20,20 @@ create policy "reality_lab_progress_select_own"
 on public.reality_lab_progress
 for select
 to authenticated
-using (auth.uid() = user_id);
+using ((select auth.uid()) = user_id);
 
 create policy "reality_lab_progress_insert_own"
 on public.reality_lab_progress
 for insert
 to authenticated
-with check (auth.uid() = user_id);
+with check ((select auth.uid()) = user_id);
 
 create policy "reality_lab_progress_update_own"
 on public.reality_lab_progress
 for update
 to authenticated
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
 create table if not exists public.reality_lab_proof_events (
   id bigint generated always as identity primary key,
@@ -56,7 +56,7 @@ create policy "reality_lab_events_select_own"
 on public.reality_lab_proof_events
 for select
 to authenticated
-using (auth.uid() = user_id);
+using ((select auth.uid()) = user_id);
 
 create index if not exists reality_lab_events_user_created_idx
   on public.reality_lab_proof_events(user_id, created_at desc);
