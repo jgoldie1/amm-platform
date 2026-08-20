@@ -1,0 +1,14 @@
+'use client';
+
+import { FormEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { authFetch } from '@/lib/supabase/client';
+
+type Product={id:string;creator_id:string;name:string;description:string|null;price:number;category:string|null;inventory:number|null;image_url:string|null;currency:string|null;rating:number|null};
+export default function MarketplacePage(){
+ const [items,setItems]=useState<Product[]>([]),[message,setMessage]=useState('Loading marketplace…'),[name,setName]=useState(''),[price,setPrice]=useState('');
+ async function load(){const r=await authFetch('/api/marketplace');const d=await r.json();if(!r.ok){setMessage(d.error==='unauthorized'?'Sign in to browse and sell in Marketplace.':d.error??'Unable to load marketplace.');return;}setItems(d.items??[]);setMessage('');}
+ useEffect(()=>{void load()},[]);
+ async function create(e:FormEvent){e.preventDefault();const amount=Number(price);if(!Number.isFinite(amount)){setMessage('Enter a valid price.');return;}const r=await authFetch('/api/marketplace',{method:'POST',body:JSON.stringify({name,price:amount,currency:'USD',category:'creator'})});const d=await r.json();if(!r.ok){setMessage(d.error??'Unable to create product.');return;}setName('');setPrice('');setMessage('Product published.');await load();}
+ return <main className="product-shell"><header className="product-header"><Link href="/" className="brand-link">TRYAMM</Link><nav className="product-nav"><Link href="/services">Services</Link><Link href="/holoforge">HoloForge</Link><Link href="/checkout">Checkout</Link><Link href="/wallet">Wallet</Link></nav></header><section className="product-hero"><p className="eyebrow">BUY • SELL • BOOK</p><h1>Marketplace</h1><p className="lede">Creator products, services, media and custom assets connected to Money Engine and ComplianceOS.</p></section><section className="product-grid"><div><p role="status">{message}</p><div className="cards">{items.map(p=><article key={p.id}>{p.image_url&&<img src={p.image_url} alt="" style={{maxWidth:'100%',borderRadius:'1rem'}}/>}<p className="eyebrow">{p.category??'PRODUCT'}</p><h2>{p.name}</h2><p>{p.description}</p><strong>{new Intl.NumberFormat(undefined,{style:'currency',currency:p.currency??'USD'}).format(Number(p.price))}</strong><p className="muted">Inventory: {p.inventory??0} • Rating: {p.rating??'New'}</p><Link href={`/checkout?product=${p.id}`} className="button-link">Buy →</Link></article>)}</div></div><aside><form className="backend-card" onSubmit={create}><h2>Sell a product</h2><label>Name<input required value={name} onChange={e=>setName(e.target.value)} /></label><label>Price (USD)<input required min="0" step="0.01" type="number" value={price} onChange={e=>setPrice(e.target.value)} /></label><button>Publish product</button><p className="muted">Checkout and payouts remain server-authorized; publishing a listing does not move money.</p></form></aside></section></main>;
+}
