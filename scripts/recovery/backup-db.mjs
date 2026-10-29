@@ -1,0 +1,15 @@
+import {spawnSync} from 'node:child_process';
+import {mkdirSync, existsSync, statSync, renameSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+const url=process.env.FAITHVERSE_BACKUP_DATABASE_URL;
+const dest=process.argv[2];
+if(!url||!dest) throw Error('Requires FAITHVERSE_BACKUP_DATABASE_URL and explicit output path');
+const output=resolve(dest);
+if(!output.endsWith('.dump')) throw Error('Output must end in .dump');
+if(existsSync(output)||existsSync(output+'.partial')) throw Error('Refusing overwrite');
+mkdirSync(dirname(output),{recursive:true});
+const run=spawnSync('pg_dump',['--format=custom','--no-owner','--no-acl','--file',output+'.partial'],{env:{...process.env,PGCONNECT_TIMEOUT:'10',PGPASSWORD:process.env.FAITHVERSE_BACKUP_PASSWORD||''},stdio:'inherit',timeout:15*60*1000});
+if(run.status!==0||run.error) throw Error('pg_dump failed; inspect/remove incomplete .partial file securely');
+if(statSync(output+'.partial').size<100) throw Error('Unexpected tiny backup');
+renameSync(output+'.partial',output);
+console.log('Backup created locally. Encrypt and move to separately secured off-site storage; restoration NOT performed.');
