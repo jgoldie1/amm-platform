@@ -40,8 +40,14 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify local host/viewer token security
         run: node --test tests/live-local-token.test.mjs
+      - name: Install FFmpeg tooling for media integration test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          command -v ffmpeg
+          command -v ffprobe
       - name: Verify local recording compression and original preservation
-        run: bash tests/live-recording-compression.sh
+        run: bash -x tests/live-recording-compression.sh
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build
