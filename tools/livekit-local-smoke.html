@@ -2,16 +2,31 @@
 <h1>TRYAMM LIVE Local Test</h1><p>Local self-hosted LiveKit only. No recording or commercial streaming.</p>
 <label>LiveKit websocket URL<input id="url" value="ws://127.0.0.1:7880"></label>
 <label>Room access token (host or viewer from local test script)<input id="token" type="password" autocomplete="off"></label>
-<button id="join">Connect</button><button id="publish" disabled>Publish camera and microphone</button><button id="leave">Disconnect</button><p id="state" role="status" aria-live="polite">Disconnected</p>
+<button id="join">Connect</button><button id="publish" disabled>Publish camera and microphone</button><button id="record" disabled>Record 10-second local test (host only)</button><button id="leave">Disconnect</button><p id="state" role="status" aria-live="polite">Disconnected</p>
 <div id="remote"></div>
 <script type="module">
 import {Room,RoomEvent,Track} from 'https://esm.sh/livekit-client@2.15.0';
-let room=null;
+let room=null;let recorder=null;let recordingStream=null;
 const state=document.getElementById('state'),out=document.getElementById('remote');
 const attach=(track)=>{const el=track.attach();out.appendChild(el)};
 document.getElementById('join').onclick=async()=>{
  try{if(room)await room.disconnect();out.replaceChildren();room=new Room();room.on(RoomEvent.TrackSubscribed,attach);room.on(RoomEvent.TrackUnsubscribed,track=>track.detach().forEach(el=>el.remove()));room.on(RoomEvent.Disconnected,()=>{state.textContent='Disconnected';document.getElementById('publish').disabled=true});await room.connect(document.getElementById('url').value,document.getElementById('token').value);state.textContent='Connected';document.getElementById('publish').disabled=false}catch(e){state.textContent='Connection failed: '+e.message}
 };
-document.getElementById('publish').onclick=async()=>{try{await room.localParticipant.enableCameraAndMicrophone();state.textContent='Publishing local media'}catch(e){state.textContent='Publish failed (viewer tokens cannot publish): '+e.message}};
-document.getElementById('leave').onclick=async()=>{await room?.disconnect();room=null;out.replaceChildren();state.textContent='Disconnected'};
+document.getElementById('publish').onclick=async()=>{try{await room.localParticipant.enableCameraAndMicrophone();state.textContent='Publishing local media';document.getElementById('record').disabled=false}catch(e){state.textContent='Publish failed (viewer tokens cannot publish): '+e.message}};
+document.getElementById('record').onclick=async()=>{
+ if(!room||recorder?.state==='recording'||!window.MediaRecorder)return;
+ const tracks=[room.localParticipant.getTrackPublication(Track.Source.Camera)?.track?.mediaStreamTrack,room.localParticipant.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack].filter(Boolean);
+ if(tracks.length!==2){state.textContent='Camera and microphone required before recording';return}
+ if(!confirm('Record a 10-second local test? This saves only to your browser downloads, not Supabase or the internet.'))return;
+ recordingStream=new MediaStream(tracks);
+ const type=['video/webm;codecs=vp8,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!type){state.textContent='This browser does not support WebM MediaRecorder';return}
+ const chunks=[];recorder=new MediaRecorder(recordingStream,{mimeType:type});
+ recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+ recorder.onstop=()=>{const blob=new Blob(chunks,{type});if(blob.size){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='tryamm-live-local-test.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);state.textContent='Local recording downloaded'}else state.textContent='No recording data received';recordingStream=null;recorder=null};
+ recorder.onerror=()=>{state.textContent='Recording failed'};
+ recorder.start(1000);state.textContent='Recording a 10-second local clip';document.getElementById('record').disabled=true;
+ setTimeout(()=>{if(recorder?.state==='recording')recorder.stop()},10000);
+};
+document.getElementById('leave').onclick=async()=>{if(recorder?.state==='recording')recorder.stop();document.getElementById('record').disabled=true;await room?.disconnect();room=null;out.replaceChildren();state.textContent='Disconnected'};
 </script></body></html>
