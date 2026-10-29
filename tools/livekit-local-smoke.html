@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>TRYAMM Local LIVE Test</title><style>body{font:16px system-ui;max-width:720px;margin:auto;padding:18px}input,button{font:inherit;padding:12px;margin:5px 0;width:100%;box-sizing:border-box}video{width:100%;background:black}button{min-height:48px}#remote video{width:100%}</style></head><body>
+<h1>TRYAMM LIVE Local Test</h1><p>Local self-hosted LiveKit only. No recording or commercial streaming.</p>
+<label>LiveKit websocket URL<input id="url" value="ws://127.0.0.1:7880"></label>
+<label>Room access token (host or viewer from local test script)<input id="token" type="password" autocomplete="off"></label>
+<button id="join">Connect</button><button id="publish" disabled>Publish camera and microphone</button><button id="leave">Disconnect</button><p id="state" role="status" aria-live="polite">Disconnected</p>
+<div id="remote"></div>
+<script type="module">
+import {Room,RoomEvent,Track} from 'https://esm.sh/livekit-client@2.15.0';
+let room=null;
+const state=document.getElementById('state'),out=document.getElementById('remote');
+const attach=(track)=>{const el=track.attach();out.appendChild(el)};
+document.getElementById('join').onclick=async()=>{
+ try{if(room)await room.disconnect();out.replaceChildren();room=new Room();room.on(RoomEvent.TrackSubscribed,attach);room.on(RoomEvent.TrackUnsubscribed,track=>track.detach().forEach(el=>el.remove()));room.on(RoomEvent.Disconnected,()=>{state.textContent='Disconnected';document.getElementById('publish').disabled=true});await room.connect(document.getElementById('url').value,document.getElementById('token').value);state.textContent='Connected';document.getElementById('publish').disabled=false}catch(e){state.textContent='Connection failed: '+e.message}
+};
+document.getElementById('publish').onclick=async()=>{try{await room.localParticipant.enableCameraAndMicrophone();state.textContent='Publishing local media'}catch(e){state.textContent='Publish failed (viewer tokens cannot publish): '+e.message}};
+document.getElementById('leave').onclick=async()=>{await room?.disconnect();room=null;out.replaceChildren();state.textContent='Disconnected'};
+</script></body></html>
