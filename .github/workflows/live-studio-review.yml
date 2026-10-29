@@ -6,6 +6,8 @@ on:
       - 'app/api/faithverse/live/**'
       - 'package.json'
       - 'package-lock.json'
+      - 'tests/live-local-token.test.mjs'
+      - 'scripts/live/**'
       - '.github/workflows/live-studio-review.yml'
   workflow_dispatch:
 jobs:
@@ -34,6 +36,8 @@ jobs:
           fi
       - name: Install locked dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify local host/viewer token security
+        run: node --test tests/live-local-token.test.mjs
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build
