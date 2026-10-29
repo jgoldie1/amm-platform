@@ -1,0 +1,30 @@
+name: LIVE Studio review build
+on:
+  pull_request:
+    paths:
+      - 'app/faithverse/live/**'
+      - 'app/api/faithverse/live/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/live-studio-review.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify lockfile consistency
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          git diff --exit-code -- package-lock.json
+      - name: Install dependencies reproducibly
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build
