@@ -8,6 +8,8 @@ on:
       - 'package-lock.json'
       - 'tests/live-local-token.test.mjs'
       - 'scripts/live/**'
+      - 'scripts/media/**'
+      - 'tests/live-recording-compression.sh'
       - '.github/workflows/live-studio-review.yml'
   workflow_dispatch:
 jobs:
@@ -38,6 +40,8 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify local host/viewer token security
         run: node --test tests/live-local-token.test.mjs
+      - name: Verify local recording compression and original preservation
+        run: bash tests/live-recording-compression.sh
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build
