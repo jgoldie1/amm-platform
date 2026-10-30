@@ -39,6 +39,7 @@ export default function FaithVersePage() {
       <nav aria-label="FaithVerse learning and media" style={{display:'flex',flexWrap:'wrap',gap:12,marginTop:20}}>
         <a href="/faithverse/academy" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Paleo-Hebrew lesson</a>
         <a href="/faithverse/world" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Explore 2D Bible World</a>
+        <a href="/faithverse/ministries" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Ministries &amp; SOC broadcasting</a>
         <a href="/faithverse/record" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Record local lesson</a>
         <a href="/faithverse/soc" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>SOC Broadcasting Ministry</a>
       </nav>
