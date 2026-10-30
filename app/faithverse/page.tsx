@@ -34,7 +34,8 @@ export default function FaithVersePage() {
       ) : (
         <p role="status" style={{padding:16,border:'1px solid currentColor',borderRadius:12}}>The hosted FaithVerse reader is being verified in Quantum Sandbox. The launch link will appear after an approved HTTPS deployment is configured.</p>
       )}
-      <p><a href="/faithverse/reader" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open Metaverse Bible Personal Reader</a></p>\n      <p><a href="/faithverse/live" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open TRYAMM LIVE Studio (broadcasting requires authorization)</a></p>\n      <h2>Explore the FaithVerse programs</h2>
+      <p><a href="/faithverse/reader" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open Metaverse Bible Personal Reader</a></p>
+      <p><a href="/faithverse/live" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open TRYAMM LIVE Studio (broadcasting requires authorization)</a></p>\n      <h2>Explore the FaithVerse programs</h2>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16}}>
         {spaces.map(([name,description])=>(
           <section key={name} style={{padding:20,border:'1px solid currentColor',borderRadius:12}}>
