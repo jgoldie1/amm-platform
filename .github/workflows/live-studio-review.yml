@@ -1,0 +1,54 @@
+name: LIVE Studio review build
+on:
+  pull_request:
+    paths:
+      - 'app/faithverse/live/**'
+      - 'app/api/faithverse/live/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tests/live-local-token.test.mjs'
+      - 'scripts/live/**'
+      - 'scripts/media/**'
+      - 'tests/live-recording-compression.sh'
+      - '.github/workflows/live-studio-review.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feature/faithverse-safe-entry-20261029')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/faithverse-safe-entry-20261029
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Update dependency lockfile for review branch
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Lock LiveKit browser dependencies for reproducible builds"
+            git push origin HEAD:feature/faithverse-safe-entry-20261029
+          fi
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify local host/viewer token security
+        run: node --test tests/live-local-token.test.mjs
+      - name: Install FFmpeg tooling for media integration test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          command -v ffmpeg
+          command -v ffprobe
+      - name: Verify local recording compression and original preservation
+        run: bash -x tests/live-recording-compression.sh
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build

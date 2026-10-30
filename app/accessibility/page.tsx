@@ -13,7 +13,7 @@ export default function AccessibilityPage() {
     setLanguage(settings.language);
   }, []);
 
-  const t = (key) => translations[language]?.[key] || translations.en[key] || key;
+  const t = (key: string): string => translations[language]?.[key] || translations.en[key] || key;
 
   return (
     <div className="container">
