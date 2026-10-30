@@ -26,8 +26,8 @@ export default function SocMinistry(){
  <p>Church administrators and ministers can request a dedicated channel with their own approved hosts, schedule and content rights. Provisioning and payments are not automatic.</p>
  <ol><li>Confirm the ministry identity, authorized administrator and permission to publish its content.</li><li>Agree on a service tier, program rights, accessibility requirements and storage allowance.</li><li>Configure a dedicated branded channel and restrict host roles to verified individuals.</li><li>Run private camera, sound, viewer, moderation and recording tests before going public.</li><li>Publish a verified broadcast schedule and an authorized donation destination if desired.</li></ol>
  <h2>Request SOC or ministry onboarding</h2>
- <p>For now, ministry representatives can prepare an inquiry using the TRYAMM Website OS request page. This does not create an account or charge money.</p>
- <a href="/tryamm-website-os-order.html" style={{display:'inline-block',padding:'14px 22px',minHeight:48,borderRadius:10,background:'#e1d3ff',color:'#281549',fontWeight:700}}>Prepare Ministry Website Request</a>
+ <p>For now, ministry representatives can prepare an inquiry by opening a preaddressed email to TRYAMM. This does not submit automatically, create an account or charge money.</p>
+ <a href="mailto:theallamericanmarketplace@gmail.com?subject=SOC%20Ministry%20Broadcasting%20Inquiry" style={{display:'inline-block',padding:'14px 22px',minHeight:48,borderRadius:10,background:'#e1d3ff',color:'#281549',fontWeight:700}}>Prepare Ministry Broadcasting Inquiry</a>
  <p style={{marginTop:22}}>No sermon recording, retransmission, music usage, charitable or tax status, public viewing, or streaming availability is implied by this preview. Ministries retain control over their approved content and account permissions.</p>
  </main>;
 }
