@@ -36,6 +36,11 @@ export default function FaithVersePage() {
       )}
       <p><a href="/faithverse/reader" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open Metaverse Bible Personal Reader</a></p>
       <p><a href="/faithverse/live" style={{display:"inline-block",padding:"14px 20px",border:"2px solid currentColor",borderRadius:12}}>Open TRYAMM LIVE Studio (broadcasting requires authorization)</a></p>
+      <nav aria-label="FaithVerse learning and media" style={{display:'flex',flexWrap:'wrap',gap:12,marginTop:20}}>
+        <a href="/faithverse/academy" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Paleo-Hebrew lesson</a>
+        <a href="/faithverse/world" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Explore 2D Bible World</a>
+        <a href="/faithverse/record" style={{padding:14,border:'1px solid currentColor',borderRadius:10}}>Record local lesson</a>
+      </nav>
       <h2>Explore the FaithVerse programs</h2>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16}}>
         {spaces.map(([name,description])=>(
